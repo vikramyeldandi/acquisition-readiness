@@ -277,14 +277,20 @@ fieldset{border:0;padding:0;margin:0 0 28px;}
   <div style="overflow-x:auto">
     <table class="lenders">
       <thead><tr>
-        <th>Lender</th><th>Rate</th><th>Est. fees</th><th>Monthly P&amp;I</th><th>Decision</th><th></th>
+        <th>Lender</th><th>Rate</th><th>Est. fees</th><th>Monthly P&amp;I</th><th>Median term sheet</th><th>Median LOI&ndash;close</th><th></th>
       </tr></thead>
       <tbody id="lenderBody"></tbody>
     </table>
   </div>
   <div class="notice no-print">
     <p class="eyebrow">How these numbers were produced</p>
-    Rates are illustrative, generated from published SBA 7(a) spread caps at a 6.75% prime rate — lenders over $350,000 are capped at prime + 3.0%. Fees are representative of guaranty, packaging, valuation, and closing costs. No lender quoted these figures. All institutions, contacts, and addresses are fictional.
+    <strong>Rates</strong> are illustrative, from published SBA 7(a) spread caps at a 6.75% prime rate &mdash; loans over $350,000 are capped at prime + 3.0%. Fees represent guaranty, packaging, valuation, and closing costs.
+    <br><br>
+    <strong>Timing</strong> would be the median of each lender&rsquo;s own closings over the trailing twelve months, with the sample size shown so a thin record is visible rather than hidden. The dominant driver is Preferred Lender Program status: PLP lenders hold delegated authority and approve without SBA pre-review, while standard lenders submit to SBA and add roughly two to four weeks. Published ranges put PLP 7(a) at three to six weeks against four to ten for standard, and clean acquisitions at sixty to ninety days from agreement.
+    <br><br>
+    Note the trade-off this makes visible: the lowest rate here is also the slowest close. Against a seventy-five day exclusivity window, that gap can matter more than the spread.
+    <br><br>
+    No lender quoted these figures. All institutions, contacts, addresses, and closing records are fictional.
   </div>
   <div class="actions">
     <button class="btn" id="printReport" disabled>Print soft-approved report</button>
@@ -466,19 +472,21 @@ fieldset{border:0;padding:0;margin:0 0 28px;}
   }
 
   /* ---------- step 3: lenders ---------- */
+  // plp: delegated SBA authority (no SBA pre-review). ts: median business days to term sheet from a
+  // complete package. cl: median calendar days LOI-to-close. n: closings in trailing 12 months.
   var LENDERS = [
     {n:"Cardinal Ridge Bank", c:"Marguerite Alvarado, VP SBA Lending", a:"1801 Pearl Street, Suite 400, Boulder, CO 80302",
-     p:"(303) 555-0182", e:"m.alvarado@cardinalridge.example", spread:2.25, feePct:2.9, dec:"7 business days"},
+     p:"(303) 555-0182", e:"m.alvarado@cardinalridge.example", spread:2.25, feePct:2.9, plp:true,  ts:11, cl:74, n:38},
     {n:"Wayfarer Community Bank", c:"Desmond Achebe, Commercial Relationship Manager", a:"215 East Oak Street, Fort Collins, CO 80524",
-     p:"(970) 555-0119", e:"d.achebe@wayfarercb.example", spread:2.50, feePct:2.6, dec:"10 business days"},
+     p:"(970) 555-0119", e:"d.achebe@wayfarercb.example", spread:2.50, feePct:2.6, plp:false, ts:14, cl:91, n:17},
     {n:"Blue Larkspur Financial", c:"Ingrid Sørensen, Director of Acquisition Finance", a:"1660 Lincoln Street, Floor 12, Denver, CO 80264",
-     p:"(720) 555-0163", e:"i.sorensen@bluelarkspur.example", spread:2.40, feePct:3.1, dec:"6 business days"},
+     p:"(720) 555-0163", e:"i.sorensen@bluelarkspur.example", spread:2.40, feePct:3.1, plp:true,  ts:9,  cl:66, n:61},
     {n:"Ironwood Prairie Bank", c:"Theo Vandenberg, Senior SBA Underwriter", a:"440 South 13th Street, Lincoln, NE 68508",
-     p:"(402) 555-0155", e:"t.vandenberg@ironwoodprairie.example", spread:2.75, feePct:2.4, dec:"12 business days"},
+     p:"(402) 555-0155", e:"t.vandenberg@ironwoodprairie.example", spread:2.75, feePct:2.4, plp:true,  ts:7,  cl:58, n:52},
     {n:"Foxglove National", c:"Priya Raghunathan, Head of Small Business Credit", a:"902 Farnam Street, Omaha, NE 68102",
-     p:"(402) 555-0107", e:"p.raghunathan@foxglovenational.example", spread:2.65, feePct:2.8, dec:"9 business days"},
+     p:"(402) 555-0107", e:"p.raghunathan@foxglovenational.example", spread:2.65, feePct:2.8, plp:true,  ts:8,  cl:61, n:94},
     {n:"Sandhill Commerce Bank", c:"Owen Castellanos, SBA Program Manager", a:"77 West Mountain Avenue, Colorado Springs, CO 80903",
-     p:"(719) 555-0134", e:"o.castellanos@sandhillcommerce.example", spread:3.00, feePct:2.2, dec:"5 business days"}
+     p:"(719) 555-0134", e:"o.castellanos@sandhillcommerce.example", spread:3.00, feePct:2.2, plp:true,  ts:5,  cl:47, n:120}
   ];
   var PRIME = 6.75, TERM = 10, selected = null;
 
@@ -498,7 +506,9 @@ fieldset{border:0;padding:0;margin:0 0 28px;}
         + '<td data-l="Rate">'+L.rate.toFixed(2)+'%<span class="bankmeta">Prime + '+L.spread.toFixed(2)+'%</span></td>'
         + '<td data-l="Est. fees">'+usd(L.fees)+'<span class="bankmeta">'+L.feePct.toFixed(1)+'% of loan</span></td>'
         + '<td data-l="Monthly P&I">'+usd(L.mo)+'</td>'
-        + '<td data-l="Decision">'+L.dec+'</td>'
+        + '<td data-l="Median term sheet">'+L.ts+' bus. days<span class="bankmeta">'
+          + (L.plp ? 'PLP \u00B7 delegated authority' : 'Standard \u00B7 SBA pre-review') + '</span></td>'
+        + '<td data-l="Median LOI-close">'+L.cl+' days<span class="bankmeta">n = '+L.n+' closings, trailing 12 mo</span></td>'
         + '<td><button class="pick" data-ix="'+ix+'">Select</button></td>'
         + '</tr>';
     }).join("");
@@ -563,7 +573,8 @@ fieldset{border:0;padding:0;margin:0 0 28px;}
       rate: selected.rate.toFixed(2) + "% (Prime + " + selected.spread.toFixed(2) + "%)",
       fees: usd(selected.fees) + " (" + selected.feePct.toFixed(1) + "% of loan)",
       monthly: usd(selected.mo),
-      decision: selected.dec
+      decision: selected.ts + " business days to term sheet \u00B7 " + selected.cl + " days LOI-close (median, n = " + selected.n + ")",
+      authority: selected.plp ? "PLP \u2014 delegated SBA authority" : "Standard \u2014 requires SBA pre-review"
     };
     try { sessionStorage.setItem("ar_verified", JSON.stringify(payload)); }
     catch(e){ return false; }
