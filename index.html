@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Acquisition Readiness Summary</title>
+<meta name="description" content="Convert your capital position into a reachable deal size, the cash flow it must produce, and the multiple you can pay.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FBFBF9;
+  --field:#FFFFFF;
+  --ink:#14181C;
+  --ink-2:#525A61;
+  --ink-3:#8A9199;
+  --rule:#DCDDD8;
+  --rule-mid:#B8BAB4;
+  --rule-strong:#2A3036;
+  --gap:#8C3A2B;
+  --gap-soft:#F2E4E0;
+  --clear:#2E5E4E;
+  --clear-soft:#E2ECE7;
+  --caution:#8A6520;
+  --caution-soft:#F5EDDD;
+  --band:#E8EAE5;
+
+  --display:"Instrument Serif",Georgia,serif;
+  --ui:"Archivo",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+
+*{box-sizing:border-box;}
+html{-webkit-text-size-adjust:100%;}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--ui);font-size:15px;line-height:1.5;
+  font-variant-numeric:tabular-nums;
+}
+:focus-visible{outline:2px solid var(--rule-strong);outline-offset:2px;}
+
+/* ---------- masthead ---------- */
+.masthead{
+  border-bottom:1.5px solid var(--rule-strong);
+  padding:26px 28px 18px;
+  display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;
+}
+.masthead h1{
+  font-family:var(--display);font-weight:400;font-size:31px;line-height:1.05;
+  margin:0 0 5px;letter-spacing:-.01em;
+}
+.masthead p{margin:0;color:var(--ink-2);font-size:13.5px;max-width:56ch;}
+.stamp{
+  font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--ink-3);border:1px solid var(--rule-mid);padding:5px 9px;white-space:nowrap;
+}
+
+/* ---------- layout ---------- */
+.wrap{display:grid;grid-template-columns:minmax(0,360px) minmax(0,1fr);gap:0;align-items:start;}
+.worksheet{
+  padding:24px 28px 60px;border-right:1px solid var(--rule);
+  position:sticky;top:0;max-height:100vh;overflow-y:auto;
+}
+.summary{padding:28px 32px 72px;min-width:0;}
+
+@media (max-width:900px){
+  .wrap{grid-template-columns:1fr;}
+  .worksheet{position:static;max-height:none;border-right:0;border-bottom:1px solid var(--rule);padding-bottom:32px;}
+  .summary{padding:24px 20px 60px;}
+  .masthead{padding:20px;}
+  .masthead h1{font-size:26px;}
+}
+
+/* ---------- worksheet ---------- */
+.wsec{margin-bottom:24px;}
+.wsec > legend, .eyebrow{
+  font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-3);padding:0;margin:0 0 10px;
+}
+fieldset{border:0;padding:0;margin:0 0 24px;}
+.row{display:flex;align-items:baseline;gap:10px;margin-bottom:9px;}
+.row label{flex:1;font-size:13px;color:var(--ink-2);line-height:1.3;}
+.row .hint{display:block;color:var(--ink-3);font-size:11px;margin-top:1px;}
+input[type=text],input[type=number],select{
+  font-family:var(--mono);font-size:13px;color:var(--ink);
+  background:var(--field);border:1px solid var(--rule-mid);border-radius:0;
+  padding:6px 8px;width:118px;text-align:right;
+}
+select{width:150px;text-align:left;}
+input[type=text].wide{width:100%;text-align:left;}
+input:hover,select:hover{border-color:var(--ink-3);}
+.togglerow{display:flex;align-items:flex-start;gap:8px;margin:10px 0 4px;}
+.togglerow input{margin-top:3px;}
+.togglerow label{font-size:12.5px;color:var(--ink-2);line-height:1.35;}
+.reset{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+  background:none;border:1px solid var(--rule-mid);padding:7px 11px;cursor:pointer;color:var(--ink-2);
+}
+.reset:hover{border-color:var(--ink);color:var(--ink);}
+
+/* ---------- summary document ---------- */
+.docmeta{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;
+  border-bottom:1px solid var(--rule);padding-bottom:9px;margin-bottom:26px;}
+.docmeta h2{font-family:var(--display);font-weight:400;font-size:23px;margin:0;letter-spacing:-.01em;}
+.docmeta .who{font-family:var(--mono);font-size:11px;color:var(--ink-2);}
+
+.headline{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1.5px solid var(--rule-strong);
+  border-bottom:1px solid var(--rule);}
+.hl{padding:16px 18px 15px;border-right:1px solid var(--rule);}
+.hl:last-child{border-right:0;}
+.hl .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);
+  display:block;margin-bottom:7px;line-height:1.4;}
+.hl .v{font-family:var(--display);font-size:33px;line-height:1;letter-spacing:-.015em;display:block;}
+.hl .sub{font-size:11.5px;color:var(--ink-2);margin-top:6px;display:block;line-height:1.35;}
+@media (max-width:620px){
+  .headline{grid-template-columns:1fr;}
+  .hl{border-right:0;border-bottom:1px solid var(--rule);}
+  .hl:last-child{border-bottom:0;}
+}
+
+/* ---------- signature: multiple gauge ---------- */
+.gauge{margin:30px 0 8px;}
+.gauge-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap;}
+.gauge-head h3{font-family:var(--ui);font-weight:600;font-size:13.5px;margin:0;letter-spacing:.01em;}
+.verdict{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;padding:4px 9px;}
+.verdict.clear{background:var(--clear-soft);color:var(--clear);}
+.verdict.tight{background:var(--caution-soft);color:var(--caution);}
+.verdict.gap{background:var(--gap-soft);color:var(--gap);}
+
+.scale{position:relative;height:74px;margin:0 4px;}
+.scale-band{position:absolute;top:24px;height:16px;background:var(--band);}
+.scale-line{position:absolute;top:32px;left:0;right:0;height:1px;background:var(--rule-mid);}
+.tick{position:absolute;top:24px;width:1px;height:16px;background:var(--rule-mid);}
+.tick-lab{position:absolute;top:46px;font-family:var(--mono);font-size:10px;color:var(--ink-3);transform:translateX(-50%);}
+.band-lab{position:absolute;top:5px;font-family:var(--mono);font-size:9.5px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--ink-3);transform:translateX(-50%);white-space:nowrap;}
+.marker{position:absolute;top:14px;height:36px;width:2px;background:var(--rule-strong);}
+.marker.soft{background:var(--ink-3);width:1px;top:19px;height:26px;}
+.marker-lab{position:absolute;top:-2px;font-family:var(--mono);font-size:11px;font-weight:700;
+  transform:translateX(-50%);white-space:nowrap;background:var(--paper);padding:0 4px;}
+.marker-lab.soft{font-weight:400;font-size:10px;color:var(--ink-2);top:52px;}
+.gauge-note{font-size:12.5px;color:var(--ink-2);margin:14px 0 0;line-height:1.5;max-width:66ch;}
+.gauge-note strong{color:var(--ink);font-weight:600;}
+
+/* ---------- tables ---------- */
+.block{margin-top:32px;}
+.block > h3{font-family:var(--ui);font-weight:600;font-size:13.5px;margin:0 0 11px;letter-spacing:.01em;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);
+  text-align:right;font-weight:400;padding:0 0 7px;border-bottom:1px solid var(--rule-mid);
+}
+th:first-child{text-align:left;}
+td{padding:8px 0;border-bottom:1px solid var(--rule);text-align:right;font-family:var(--mono);font-size:12.5px;}
+td:first-child{text-align:left;font-family:var(--ui);font-size:13px;color:var(--ink-2);}
+tr.total td{border-bottom:1.5px solid var(--rule-strong);border-top:1px solid var(--rule-mid);font-weight:700;color:var(--ink);}
+tr.total td:first-child{font-weight:600;color:var(--ink);}
+td.neg{color:var(--gap);}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:30px;}
+@media (max-width:760px){.two{grid-template-columns:1fr;gap:26px;}}
+
+.notice{
+  border-left:2px solid var(--gap);background:var(--gap-soft);padding:13px 15px;margin-top:26px;
+  font-size:13px;line-height:1.5;color:var(--ink);
+}
+.notice .eyebrow{color:var(--gap);margin-bottom:5px;}
+
+.assumptions{font-family:var(--mono);font-size:11.5px;color:var(--ink-2);line-height:1.75;}
+.assumptions span{white-space:nowrap;}
+.assumptions i{font-style:normal;color:var(--ink-3);}
+
+.disclaimer{
+  margin-top:34px;padding-top:12px;border-top:1px solid var(--rule);
+  font-size:11.5px;color:var(--ink-3);line-height:1.55;max-width:78ch;
+}
+
+.actions{margin-top:26px;display:flex;gap:10px;flex-wrap:wrap;}
+.btn{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  padding:10px 16px;border:1px solid var(--rule-strong);background:var(--rule-strong);color:var(--paper);
+  cursor:pointer;border-radius:0;
+}
+.btn.ghost{background:none;color:var(--ink);}
+.btn:hover{opacity:.86;}
+
+/* ---------- print ---------- */
+@media print{
+  @page{margin:14mm;}
+  body{background:#fff;font-size:10.5pt;}
+  .masthead,.worksheet,.actions,.print-hide{display:none !important;}
+  .wrap{display:block;}
+  .summary{padding:0;}
+  .docmeta{margin-bottom:16px;}
+  .docmeta h2{font-size:18pt;}
+  .hl .v{font-size:21pt;}
+  .headline{border-top:1.5pt solid #000;}
+  .gauge{margin:18px 0 4px;}
+  .block{margin-top:18px;page-break-inside:avoid;}
+  .notice{page-break-inside:avoid;}
+  .marker-lab{background:#fff;}
+  .disclaimer{margin-top:18px;}
+  a{text-decoration:none;color:inherit;}
+}
+
+@media (prefers-reduced-motion:reduce){*{transition:none !important;animation:none !important;}}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div>
+    <h1>Acquisition Readiness Summary</h1>
+    <p>Turns a buyer's capital position into a reachable deal size, the cash flow that deal must produce, and the multiple they can afford to pay. Built for a broker to read in thirty seconds.</p>
+  </div>
+  <div class="stamp">Self-reported · Not a prequalification</div>
+</header>
+
+<div class="wrap">
+
+  <!-- ============ WORKSHEET ============ -->
+  <form class="worksheet" id="ws" autocomplete="off">
+    <fieldset class="wsec">
+      <legend>Buyer</legend>
+      <div class="row"><input type="text" class="wide" id="buyerName" placeholder="Name (appears on the summary)"></div>
+      <div class="row"><input type="text" class="wide" id="buyerMarket" placeholder="Target market, e.g. Denver metro"></div>
+    </fieldset>
+
+    <fieldset class="wsec">
+      <legend>Capital</legend>
+      <div class="row"><label for="liquid">Liquid capital<span class="hint">Cash and taxable brokerage</span></label><input type="number" id="liquid" value="400000" step="10000"></div>
+      <div class="row"><label for="reserve">Broken-deal reserve<span class="hint">Diligence spend on deals that die</span></label><input type="number" id="reserve" value="50000" step="5000"></div>
+    </fieldset>
+
+    <fieldset class="wsec">
+      <legend>Search runway</legend>
+      <div class="row"><label for="expenses">Monthly household expenses</label><input type="number" id="expenses" value="9000" step="500"></div>
+      <div class="row"><label for="otherIncome">Other monthly income<span class="hint">Spouse, consulting, rental</span></label><input type="number" id="otherIncome" value="4000" step="500"></div>
+      <div class="row"><label for="months">Expected search (months)</label><input type="number" id="months" value="12" step="1" min="1" max="36"></div>
+    </fieldset>
+
+    <fieldset class="wsec">
+      <legend>Deal assumptions</legend>
+      <div class="row"><label for="salary">Owner salary you need<span class="hint">Annual, post-close</span></label><input type="number" id="salary" value="150000" step="10000"></div>
+      <div class="row"><label for="rate">Interest rate (%)<span class="hint">Prime 6.75% + spread; cap is Prime+3.0%</span></label><input type="number" id="rate" value="9.25" step="0.25"></div>
+      <div class="row"><label for="term">Term (years)</label><input type="number" id="term" value="10" step="1" min="5" max="25"></div>
+      <div class="row"><label for="closing">Closing costs (% of project)</label><input type="number" id="closing" value="2.5" step="0.5"></div>
+      <div class="togglerow">
+        <input type="checkbox" id="standby">
+        <label for="standby">Seller carries 5% on full standby — reduces your injection to 5%. Depends entirely on seller willingness; leave off unless you have reason to expect it.</label>
+      </div>
+    </fieldset>
+
+    <fieldset class="wsec">
+      <legend>Operating experience</legend>
+      <div class="row"><label for="sector">Target sector</label><input type="text" class="wide" id="sector" placeholder="e.g. Commercial HVAC"></div>
+      <div class="row"><label for="expYears">Years in that sector</label><input type="number" id="expYears" value="0" step="1" min="0"></div>
+      <div class="row"><label for="pnl">P&amp;L ownership</label>
+        <select id="pnl"><option value="none">None</option><option value="partial" selected>Partial</option><option value="full">Full P&amp;L</option></select>
+      </div>
+      <div class="row"><label for="headcount">Largest team managed</label><input type="number" id="headcount" value="0" step="1" min="0"></div>
+      <div class="row"><label for="credit">Credit band</label>
+        <select id="credit"><option>760+</option><option selected>700–759</option><option>660–699</option><option>Below 660</option></select>
+      </div>
+    </fieldset>
+
+    <button type="button" class="reset" id="resetBtn">Reset to defaults</button>
+  </form>
+
+  <!-- ============ SUMMARY ============ -->
+  <main class="summary">
+    <div class="docmeta">
+      <h2 id="docTitle">Buyer readiness</h2>
+      <div class="who"><span id="metaMarket"></span><span id="metaDate"></span></div>
+    </div>
+
+    <section class="headline">
+      <div class="hl">
+        <span class="k">Required SDE</span>
+        <span class="v" id="reqSDE">—</span>
+        <span class="sub" id="reqSDESub">Before the buyer takes a dollar, at 1.25× DSCR</span>
+      </div>
+      <div class="hl">
+        <span class="k">Reachable deal size</span>
+        <span class="v" id="dealSize">—</span>
+        <span class="sub" id="dealSizeSub">Total project cost</span>
+      </div>
+      <div class="hl">
+        <span class="k">Multiple payable</span>
+        <span class="v" id="maxMult">—</span>
+        <span class="sub" id="maxMultSub">Ceiling on SDE multiple at 1.25× DSCR</span>
+      </div>
+    </section>
+
+    <!-- signature element -->
+    <section class="gauge">
+      <div class="gauge-head">
+        <h3>Where that multiple sits against the market</h3>
+        <span class="verdict" id="verdict">—</span>
+      </div>
+      <div class="scale" id="scale"></div>
+      <p class="gauge-note" id="gaugeNote"></p>
+    </section>
+
+    <div class="notice print-hide" id="notice" style="display:none">
+      <span class="eyebrow" id="noticeTitle">Constraint</span>
+      <span id="noticeBody"></span>
+    </div>
+
+    <div class="two">
+      <section class="block">
+        <h3>Capital available for injection</h3>
+        <table>
+          <tbody>
+            <tr><td>Liquid capital</td><td id="tLiquid">—</td></tr>
+            <tr><td>Less search burn</td><td id="tBurn">—</td></tr>
+            <tr><td>Less broken-deal reserve</td><td id="tReserve">—</td></tr>
+            <tr class="total"><td>Available</td><td id="tAvail">—</td></tr>
+            <tr><td>Injection required</td><td id="tInj">—</td></tr>
+            <tr><td>Closing costs</td><td id="tClose">—</td></tr>
+            <tr><td>SBA loan</td><td id="tLoan">—</td></tr>
+            <tr><td>Annual debt service</td><td id="tDS">—</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="block">
+        <h3>Rate sensitivity</h3>
+        <table>
+          <thead><tr><th>Rate</th><th>Required SDE</th><th>Max multiple</th></tr></thead>
+          <tbody id="sensBody"></tbody>
+        </table>
+        <h3 style="margin-top:22px">Coverage bands</h3>
+        <table>
+          <thead><tr><th>DSCR</th><th>Required SDE</th><th>Max multiple</th></tr></thead>
+          <tbody id="dscrBody"></tbody>
+        </table>
+      </section>
+    </div>
+
+    <section class="block">
+      <h3>Buyer profile</h3>
+      <table>
+        <tbody>
+          <tr><td>Target sector</td><td id="pSector">—</td></tr>
+          <tr><td>Experience in sector</td><td id="pExp">—</td></tr>
+          <tr><td>P&amp;L ownership / team managed</td><td id="pPnl">—</td></tr>
+          <tr><td>Credit band</td><td id="pCredit">—</td></tr>
+          <tr><td>Funded search runway</td><td id="pRunway">—</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="block">
+      <h3>Assumptions this rests on</h3>
+      <p class="assumptions" id="assumptions"></p>
+    </section>
+
+    <p class="disclaimer">
+      All figures derive from inputs supplied by the buyer and have not been verified by any third party.
+      This is not a prequalification, a commitment to lend, or a credit decision, and it is not legal,
+      tax, or financial advice. SBA parameters used here (10% minimum equity injection on a change of
+      ownership, 1.25× minimum debt service coverage) reflect commonly published lender guidance and vary
+      by lender and by deal. Multiple ranges are directional. Confirm everything with a lender before
+      relying on it.
+    </p>
+
+    <div class="actions">
+      <button class="btn" id="printBtn">Print / save as PDF</button>
+      <button class="btn ghost" id="copyBtn">Copy figures</button>
+      <a class="btn ghost" id="verifyLink" href="verify.html" style="text-decoration:none;display:inline-block">Lender verification (demo)</a>
+    </div>
+  </main>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var DEFAULTS = {
+    buyerName:"", buyerMarket:"", liquid:400000, reserve:50000, expenses:9000,
+    otherIncome:4000, months:12, salary:150000, rate:9.25, term:10, closing:2.5,
+    standby:false, sector:"", expYears:0, pnl:"partial", headcount:0, credit:"700–759"
+  };
+
+  var SCALE_MIN = 1.5, SCALE_MAX = 5.0;
+  var BAND_LO = 2.0, BAND_HI = 3.5;   // typical main-street SDE multiple range
+
+  var $ = function(id){ return document.getElementById(id); };
+
+  var usd = function(n){
+    if(!isFinite(n)) return "—";
+    return new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0}).format(Math.round(n));
+  };
+  var usdShort = function(n){
+    if(!isFinite(n)) return "—";
+    if(Math.abs(n) >= 1000000) return "$" + (n/1000000).toFixed(n >= 10000000 ? 1 : 2).replace(/\.0+$/,"") + "M";
+    return "$" + Math.round(n/1000) + "K";
+  };
+  var mult = function(m){ return isFinite(m) && m > 0 ? m.toFixed(1) + "\u00D7" : "—"; };
+
+  function annualDebtService(principal, annualRatePct, years){
+    var r = (annualRatePct/100)/12, n = years*12;
+    if(principal <= 0) return 0;
+    if(r === 0) return (principal/n)*12;
+    var pmt = principal * r / (1 - Math.pow(1+r, -n));
+    return pmt * 12;
+  }
+
+  function readInputs(){
+    var num = function(id, fallback){
+      var v = parseFloat($(id).value);
+      return isFinite(v) ? v : fallback;
+    };
+    return {
+      buyerName: $("buyerName").value.trim(),
+      buyerMarket: $("buyerMarket").value.trim(),
+      liquid: Math.max(0, num("liquid",0)),
+      reserve: Math.max(0, num("reserve",0)),
+      expenses: Math.max(0, num("expenses",0)),
+      otherIncome: Math.max(0, num("otherIncome",0)),
+      months: Math.max(1, num("months",12)),
+      salary: Math.max(0, num("salary",0)),
+      rate: Math.max(0, num("rate",9.25)),
+      term: Math.max(1, num("term",10)),
+      closing: Math.max(0, num("closing",2.5)),
+      standby: $("standby").checked,
+      sector: $("sector").value.trim(),
+      expYears: Math.max(0, num("expYears",0)),
+      pnl: $("pnl").value,
+      headcount: Math.max(0, num("headcount",0)),
+      credit: $("credit").value
+    };
+  }
+
+  function compute(i){
+    var injectionPct = i.standby ? 0.05 : 0.10;
+    var closingPct = i.closing/100;
+
+    var burn = Math.max(0, i.expenses - i.otherIncome) * i.months;
+    var available = i.liquid - burn - i.reserve;
+
+    // Closing costs scale with project cost, so injection and closing are solved jointly.
+    var projectCost = available > 0 ? available / (injectionPct + closingPct) : 0;
+
+    var injection = projectCost * injectionPct;
+    var closingCost = projectCost * closingPct;
+    var loan = projectCost * 0.90;
+
+    var ds = annualDebtService(loan, i.rate, i.term);
+    var req125 = ds * 1.25 + i.salary;
+    var req150 = ds * 1.50 + i.salary;
+
+    var maxMult125 = req125 > 0 ? projectCost / req125 : 0;
+    var maxMult150 = req150 > 0 ? projectCost / req150 : 0;
+
+    var runwayMonths = (i.expenses - i.otherIncome) > 0
+      ? Math.floor(Math.max(0, i.liquid - i.reserve) / (i.expenses - i.otherIncome))
+      : Infinity;
+
+    return {
+      injectionPct:injectionPct, burn:burn, available:available, projectCost:projectCost,
+      injection:injection, closingCost:closingCost, loan:loan, ds:ds,
+      req125:req125, req150:req150, maxMult125:maxMult125, maxMult150:maxMult150,
+      runwayMonths:runwayMonths, viable: available > 0
+    };
+  }
+
+  function pos(m){
+    var p = (m - SCALE_MIN) / (SCALE_MAX - SCALE_MIN);
+    return Math.max(0, Math.min(1, p)) * 100;
+  }
+
+  function drawScale(c){
+    var el = $("scale");
+    var html = "";
+    html += '<div class="scale-band" style="left:'+pos(BAND_LO)+'%;width:'+(pos(BAND_HI)-pos(BAND_LO))+'%"></div>';
+    html += '<div class="band-lab" style="left:'+((pos(BAND_LO)+pos(BAND_HI))/2)+'%">Typical main street</div>';
+    html += '<div class="scale-line"></div>';
+    for(var t = SCALE_MIN; t <= SCALE_MAX + 0.01; t += 0.5){
+      html += '<div class="tick" style="left:'+pos(t)+'%"></div>';
+      html += '<div class="tick-lab" style="left:'+pos(t)+'%">'+t.toFixed(1)+'\u00D7</div>';
+    }
+    if(c.viable && c.maxMult150 > 0){
+      html += '<div class="marker soft" style="left:'+pos(c.maxMult150)+'%"></div>';
+      html += '<div class="marker-lab soft" style="left:'+pos(c.maxMult150)+'%">'+mult(c.maxMult150)+' at 1.50\u00D7</div>';
+    }
+    if(c.viable && c.maxMult125 > 0){
+      html += '<div class="marker" style="left:'+pos(c.maxMult125)+'%"></div>';
+      html += '<div class="marker-lab" style="left:'+pos(c.maxMult125)+'%">'+mult(c.maxMult125)+'</div>';
+    }
+    el.innerHTML = html;
+  }
+
+  function verdictFor(m){
+    if(!isFinite(m) || m <= 0) return {cls:"gap", text:"No capacity", key:"none"};
+    if(m < BAND_LO) return {cls:"gap", text:"Priced out", key:"below"};
+    if(m < BAND_HI) return {cls:"tight", text:"Competitive in part", key:"inside"};
+    return {cls:"clear", text:"Competitive", key:"above"};
+  }
+
+  function render(){
+    var i = readInputs(), c = compute(i);
+
+    // meta
+    $("docTitle").textContent = i.buyerName ? i.buyerName : "Buyer readiness";
+    $("metaMarket").textContent = i.buyerMarket ? i.buyerMarket + "  ·  " : "";
+    $("metaDate").textContent = new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"});
+
+    if(!c.viable){
+      $("reqSDE").textContent = "—";
+      $("dealSize").textContent = "$0";
+      $("maxMult").textContent = "—";
+      $("dealSizeSub").textContent = "No capital available for injection";
+      $("verdict").className = "verdict gap";
+      $("verdict").textContent = "No capacity";
+      $("scale").innerHTML = "";
+      $("gaugeNote").innerHTML = "Search burn and the broken-deal reserve consume the full liquid capital. Nothing remains for an equity injection. Shorten the expected search, reduce the reserve, or raise liquidity before going further.";
+      $("notice").style.display = "none";
+    } else {
+      $("reqSDE").textContent = usdShort(c.req125);
+      $("dealSize").textContent = usdShort(c.projectCost);
+      $("maxMult").textContent = mult(c.maxMult125);
+      $("dealSizeSub").textContent = "Total project cost at " + Math.round(c.injectionPct*100) + "% injection";
+
+      var v = verdictFor(c.maxMult125);
+      $("verdict").className = "verdict " + v.cls;
+      $("verdict").textContent = v.text;
+
+      drawScale(c);
+
+      var note = "";
+      if(v.key === "below"){
+        note = "At <strong>" + mult(c.maxMult125) + "</strong>, this buyer cannot reach the bottom of the typical main-street range. "
+             + "Any business priced at a normal multiple will fail debt service coverage at this deal size. The constraint is capital or salary, not deal selection.";
+      } else if(v.key === "inside"){
+        note = "At <strong>" + mult(c.maxMult125) + "</strong>, this buyer can compete for businesses priced in the lower half of the typical range "
+             + "but is priced out above it. Sellers asking " + mult(BAND_HI) + " or more are out of reach without more capital, a lower salary requirement, or a seller note.";
+      } else {
+        note = "At <strong>" + mult(c.maxMult125) + "</strong>, this buyer clears the typical main-street range with headroom. "
+             + "Deal selection, not financing capacity, is the binding constraint.";
+      }
+      note += " The multiple ceiling is what the business must be bought at for its cash flow to cover debt service at 1.25\u00D7 <em>and</em> pay a "
+            + usd(i.salary) + " owner salary.";
+      $("gaugeNote").innerHTML = note;
+
+      // constraint notice
+      var n = $("notice");
+      if(v.key === "below" || v.key === "inside"){
+        n.style.display = "";
+        $("noticeTitle").textContent = "What moves this";
+        var deltaSalary = i.salary > 0 ? " Dropping the salary requirement to " + usd(i.salary*0.6) + " raises the ceiling to about "
+          + mult(c.projectCost / (c.ds*1.25 + i.salary*0.6)) + "." : "";
+        var standbyMsg = i.standby ? "" : " A 5% seller note on full standby would raise reachable deal size to about "
+          + usdShort(c.available / (0.05 + i.closing/100)) + ".";
+        $("noticeBody").innerHTML = deltaSalary + standbyMsg;
+        if(!deltaSalary && !standbyMsg) n.style.display = "none";
+      } else {
+        n.style.display = "none";
+      }
+    }
+
+    // capital table
+    $("tLiquid").textContent = usd(i.liquid);
+    $("tBurn").textContent = "(" + usd(c.burn).replace("$","$") + ")";
+    $("tBurn").className = "neg";
+    $("tReserve").textContent = "(" + usd(i.reserve) + ")";
+    $("tReserve").className = "neg";
+    $("tAvail").textContent = usd(c.available);
+    $("tInj").textContent = usd(c.injection) + "  (" + Math.round(c.injectionPct*100) + "%)";
+    $("tClose").textContent = usd(c.closingCost);
+    $("tLoan").textContent = usd(c.loan);
+    $("tDS").textContent = usd(c.ds) + " / yr";
+
+    // rate sensitivity
+    var sens = "";
+    [-2, 0, 2].forEach(function(d){
+      var r = Math.max(0.5, i.rate + d);
+      var ds = annualDebtService(c.loan, r, i.term);
+      var req = ds*1.25 + i.salary;
+      var mm = req > 0 ? c.projectCost/req : 0;
+      var mark = d === 0 ? " (base)" : "";
+      sens += "<tr><td>" + r.toFixed(2) + "%" + mark + "</td><td>" + usd(req) + "</td><td>" + mult(mm) + "</td></tr>";
+    });
+    $("sensBody").innerHTML = sens;
+
+    // DSCR bands
+    $("dscrBody").innerHTML =
+      "<tr><td>1.25\u00D7 floor</td><td>" + usd(c.req125) + "</td><td>" + mult(c.maxMult125) + "</td></tr>" +
+      "<tr><td>1.50\u00D7 preferred</td><td>" + usd(c.req150) + "</td><td>" + mult(c.maxMult150) + "</td></tr>";
+
+    // profile
+    $("pSector").textContent = i.sector || "Not specified";
+    var expTxt = i.expYears > 0 ? i.expYears + (i.expYears === 1 ? " year" : " years") : "None in sector";
+    if(i.expYears === 0 && i.sector) expTxt += " \u2014 lenders weigh this";
+    $("pExp").textContent = expTxt;
+    var pnlMap = {none:"No P&L ownership", partial:"Partial P&L", full:"Full P&L"};
+    $("pPnl").textContent = pnlMap[i.pnl] + (i.headcount > 0 ? " / " + i.headcount + " people" : " / none");
+    $("pCredit").textContent = i.credit;
+    $("pRunway").textContent = isFinite(c.runwayMonths)
+      ? i.months + " months planned, " + c.runwayMonths + " months funded"
+      : i.months + " months planned, income covers expenses";
+
+    // keep the demo link carrying the current loan amount
+    var vl = $("verifyLink");
+    if(vl) vl.setAttribute("href", "verify.html?amount=" + Math.round(c.loan));
+
+    // assumptions
+    $("assumptions").innerHTML =
+      '<span><i>Rate</i> ' + i.rate.toFixed(2) + '%</span> · ' +
+      '<span><i>Term</i> ' + i.term + ' yr</span> · ' +
+      '<span><i>Injection</i> ' + Math.round(c.injectionPct*100) + '%' + (i.standby ? ' with 5% seller standby' : '') + '</span> · ' +
+      '<span><i>DSCR floor</i> 1.25\u00D7</span> · ' +
+      '<span><i>Closing costs</i> ' + i.closing + '% of project</span> · ' +
+      '<span><i>Broken-deal reserve</i> ' + usd(i.reserve) + '</span> · ' +
+      '<span><i>Owner salary</i> ' + usd(i.salary) + '</span> · ' +
+      '<span><i>Typical multiple band</i> ' + BAND_LO.toFixed(1) + '\u2013' + BAND_HI.toFixed(1) + '\u00D7 SDE</span>';
+  }
+
+  // wiring
+  var form = $("ws");
+  form.addEventListener("input", render);
+  form.addEventListener("change", render);
+
+  $("resetBtn").addEventListener("click", function(){
+    Object.keys(DEFAULTS).forEach(function(k){
+      var el = $(k);
+      if(!el) return;
+      if(el.type === "checkbox") el.checked = DEFAULTS[k];
+      else el.value = DEFAULTS[k];
+    });
+    render();
+  });
+
+  $("printBtn").addEventListener("click", function(){ window.print(); });
+
+  $("copyBtn").addEventListener("click", function(){
+    var i = readInputs(), c = compute(i);
+    var txt = [
+      (i.buyerName || "Buyer") + " — acquisition readiness",
+      "Reachable deal size: " + usd(c.projectCost),
+      "Required SDE at 1.25x DSCR: " + usd(c.req125),
+      "Maximum multiple payable: " + mult(c.maxMult125),
+      "Equity injection available: " + usd(c.injection),
+      "Assumptions: " + i.rate.toFixed(2) + "% / " + i.term + "yr / " + Math.round(c.injectionPct*100) + "% injection / " + usd(i.salary) + " salary",
+      "Self-reported. Not a prequalification."
+    ].join("\n");
+    var done = function(){
+      var b = $("copyBtn"); var old = b.textContent;
+      b.textContent = "Copied"; setTimeout(function(){ b.textContent = old; }, 1600);
+    };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(done, function(){});
+    } else {
+      var ta = document.createElement("textarea");
+      ta.value = txt; document.body.appendChild(ta); ta.select();
+      try{ document.execCommand("copy"); done(); } catch(e){}
+      document.body.removeChild(ta);
+    }
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

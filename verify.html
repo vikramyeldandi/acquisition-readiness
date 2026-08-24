@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lender Verification — Demo</title>
+<meta name="description" content="Simulated SBA lender verification flow. Demonstration only. No credit inquiry occurs and no data is transmitted.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FBFBF9; --field:#FFFFFF;
+  --ink:#14181C; --ink-2:#525A61; --ink-3:#8A9199;
+  --rule:#DCDDD8; --rule-mid:#B8BAB4; --rule-strong:#2A3036;
+  --gap:#8C3A2B; --gap-soft:#F2E4E0;
+  --clear:#2E5E4E; --clear-soft:#E2ECE7;
+  --caution:#8A6520; --caution-soft:#F5EDDD;
+  --demo:#7A3E8C; --demo-soft:#F0E8F3;
+  --display:"Instrument Serif",Georgia,serif;
+  --ui:"Archivo",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box;}
+html{-webkit-text-size-adjust:100%;}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--ui);
+  font-size:15px;line-height:1.5;font-variant-numeric:tabular-nums;}
+:focus-visible{outline:2px solid var(--rule-strong);outline-offset:2px;}
+
+/* demo banner */
+.demobar{
+  position:sticky;top:0;z-index:50;background:var(--demo);color:#fff;
+  font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  padding:7px 20px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
+}
+.demobar span:last-child{opacity:.8;letter-spacing:.08em;text-transform:none;font-size:10.5px;}
+
+.masthead{border-bottom:1.5px solid var(--rule-strong);padding:24px 28px 18px;
+  display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;}
+.masthead h1{font-family:var(--display);font-weight:400;font-size:29px;margin:0 0 4px;letter-spacing:-.01em;}
+.masthead p{margin:0;color:var(--ink-2);font-size:13.5px;max-width:58ch;}
+.backlink{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-2);text-decoration:none;border-bottom:1px solid var(--rule-mid);padding-bottom:2px;white-space:nowrap;}
+.backlink:hover{color:var(--ink);border-color:var(--ink);}
+
+/* stepper */
+.steps{display:flex;gap:0;border-bottom:1px solid var(--rule);padding:0 28px;flex-wrap:wrap;}
+.step{font-family:var(--mono);font-size:10px;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--ink-3);padding:12px 18px 11px;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;}
+.step.active{color:var(--ink);border-bottom-color:var(--rule-strong);}
+.step.done{color:var(--clear);}
+
+main{max-width:1000px;margin:0 auto;padding:30px 28px 80px;}
+@media (max-width:760px){main{padding:24px 20px 64px;} .masthead{padding:20px;} .steps{padding:0 12px;}}
+
+.panel{display:none;}
+.panel.on{display:block;}
+
+h2.sec{font-family:var(--display);font-weight:400;font-size:24px;margin:0 0 6px;letter-spacing:-.01em;}
+p.lede{color:var(--ink-2);font-size:14px;margin:0 0 26px;max-width:70ch;}
+
+.eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-3);margin:0 0 11px;}
+
+fieldset{border:0;padding:0;margin:0 0 28px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px 20px;}
+@media (max-width:640px){.grid2{grid-template-columns:1fr;}}
+.f label{display:block;font-size:12px;color:var(--ink-2);margin-bottom:4px;}
+.f input{font-family:var(--mono);font-size:13px;color:var(--ink);background:var(--field);
+  border:1px solid var(--rule-mid);border-radius:0;padding:8px 9px;width:100%;}
+.f input:hover{border-color:var(--ink-3);}
+.f input.bad{border-color:var(--gap);background:#FFF8F7;}
+
+/* document tiles */
+.docs{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:10px;}
+.doc{border:1px solid var(--rule-mid);background:var(--field);padding:12px 13px;cursor:pointer;
+  display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+.doc:hover{border-color:var(--ink-3);}
+.doc.on{border-color:var(--rule-strong);background:#fff;}
+.doc .n{font-size:12.5px;line-height:1.35;}
+.doc .req{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);display:block;margin-top:3px;}
+.doc .mark{font-family:var(--mono);font-size:10px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--ink-3);white-space:nowrap;padding-top:1px;}
+.doc.on .mark{color:var(--clear);}
+
+/* consent */
+.consent{border:1px solid var(--rule-mid);background:var(--field);padding:16px 17px;margin-top:6px;}
+.policy{border-left:2px solid var(--rule-mid);padding:11px 14px;margin:12px 0 15px;background:var(--paper);}
+.policy .eyebrow{margin-bottom:6px;}
+.policy ul{margin:0;padding-left:17px;font-size:12.5px;color:var(--ink-2);line-height:1.65;}
+.checkline{display:flex;gap:9px;align-items:flex-start;padding-top:13px;border-top:1px solid var(--rule);}
+.checkline input{margin-top:3px;flex:none;}
+.checkline label{font-size:13px;line-height:1.5;}
+.checkline strong{font-weight:600;}
+
+.actions{margin-top:26px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.btn{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  padding:11px 18px;border:1px solid var(--rule-strong);background:var(--rule-strong);color:var(--paper);
+  cursor:pointer;border-radius:0;}
+.btn.ghost{background:none;color:var(--ink);}
+.btn:disabled{opacity:.32;cursor:not-allowed;}
+.btn:not(:disabled):hover{opacity:.86;}
+.err{font-size:12.5px;color:var(--gap);}
+
+/* processing */
+.checks{border-top:1.5px solid var(--rule-strong);}
+.chk{display:grid;grid-template-columns:1fr 130px 92px;gap:14px;align-items:center;
+  padding:11px 0;border-bottom:1px solid var(--rule);}
+.chk .lbl{font-size:13px;}
+.chk .who{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);}
+.bar{height:5px;background:var(--rule);position:relative;overflow:hidden;}
+.bar i{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--rule-strong);transition:width .3s linear;}
+.state{font-family:var(--mono);font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;text-align:right;color:var(--ink-3);}
+.state.ok{color:var(--clear);}
+@media (max-width:640px){.chk{grid-template-columns:1fr 78px;} .chk .who{display:none;}}
+
+.spinwrap{display:flex;align-items:center;gap:12px;margin:0 0 22px;}
+.spinner{width:17px;height:17px;border:2px solid var(--rule-mid);border-top-color:var(--rule-strong);
+  border-radius:50%;animation:spin .8s linear infinite;flex:none;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.spinwrap .t{font-family:var(--mono);font-size:11.5px;color:var(--ink-2);}
+
+/* lender table */
+.lenders{width:100%;border-collapse:collapse;font-size:13px;}
+.lenders th{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink-3);text-align:right;font-weight:400;padding:0 0 8px;border-bottom:1px solid var(--rule-mid);}
+.lenders th:first-child{text-align:left;}
+.lenders td{padding:13px 0;border-bottom:1px solid var(--rule);text-align:right;
+  font-family:var(--mono);font-size:12.5px;vertical-align:top;}
+.lenders td:first-child{text-align:left;font-family:var(--ui);}
+.lenders tr.sel td{background:var(--clear-soft);}
+.bank{font-weight:600;font-size:13.5px;display:block;}
+.bankmeta{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);display:block;margin-top:3px;line-height:1.55;}
+.pick{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
+  border:1px solid var(--rule-mid);background:none;padding:6px 11px;cursor:pointer;color:var(--ink-2);}
+.pick:hover{border-color:var(--ink);color:var(--ink);}
+.pick.on{background:var(--rule-strong);border-color:var(--rule-strong);color:var(--paper);}
+@media (max-width:760px){
+  .lenders thead{display:none;}
+  .lenders tr{display:block;border-bottom:1px solid var(--rule-mid);padding:12px 0;}
+  .lenders td{display:flex;justify-content:space-between;border:0;padding:3px 0;text-align:right;}
+  .lenders td:first-child{display:block;margin-bottom:7px;}
+  .lenders td[data-l]:before{content:attr(data-l);font-family:var(--mono);font-size:9.5px;
+    letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3);}
+}
+
+.choice{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px;}
+@media (max-width:640px){.choice{grid-template-columns:1fr;}}
+.opt{border:1px solid var(--rule-mid);background:var(--field);padding:16px 17px;cursor:pointer;}
+.opt:hover{border-color:var(--ink-3);}
+.opt.on{border-color:var(--rule-strong);border-width:1.5px;}
+.opt h4{margin:0 0 5px;font-size:13.5px;font-weight:600;}
+.opt p{margin:0;font-size:12.5px;color:var(--ink-2);line-height:1.5;}
+
+.receipt{border-top:1.5px solid var(--rule-strong);margin-top:8px;}
+.receipt .r{display:flex;justify-content:space-between;gap:16px;padding:9px 0;border-bottom:1px solid var(--rule);
+  font-family:var(--mono);font-size:12.5px;}
+.receipt .r span:first-child{font-family:var(--ui);font-size:13px;color:var(--ink-2);}
+
+.notice{border-left:2px solid var(--demo);background:var(--demo-soft);padding:13px 15px;margin-top:24px;
+  font-size:12.5px;line-height:1.55;}
+.notice .eyebrow{color:var(--demo);margin-bottom:5px;}
+
+.disclaimer{margin-top:32px;padding-top:12px;border-top:1px solid var(--rule);
+  font-size:11.5px;color:var(--ink-3);line-height:1.55;max-width:80ch;}
+
+/* print */
+.watermark{display:none;}
+@media print{
+  @page{margin:14mm;}
+  body{background:#fff;font-size:10.5pt;}
+  .demobar{position:static;background:#fff;color:#000;border:1.5pt solid #000;padding:6px 10px;margin-bottom:12px;}
+  .masthead,.steps,.actions,.notice,.no-print{display:none !important;}
+  .panel{display:none !important;}
+  .panel.on{display:block !important;}
+  main{padding:0;max-width:none;}
+  .watermark{
+    display:block;position:fixed;top:44%;left:0;right:0;text-align:center;
+    font-family:var(--mono);font-size:52pt;letter-spacing:.2em;color:rgba(0,0,0,.07);
+    transform:rotate(-24deg);z-index:0;pointer-events:none;
+  }
+  .lenders tr.sel td{background:#F0F0F0 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .pick{display:none;}
+  .disclaimer{margin-top:16px;}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+</style>
+</head>
+<body>
+
+<div class="demobar">
+  <span>Demo — simulated</span>
+  <span>No credit inquiry occurs. No data leaves this browser. Lenders shown are fictional.</span>
+</div>
+
+<div class="watermark">DEMO — SIMULATED</div>
+
+<header class="masthead no-print">
+  <div>
+    <h1>Lender verification</h1>
+    <p>Demonstrates how a verified readiness profile would be produced and matched to SBA 7(a) lenders. Every element below is simulated.</p>
+  </div>
+  <a class="backlink" href="index.html">&larr; Readiness summary</a>
+</header>
+
+<nav class="steps no-print" aria-label="Progress">
+  <div class="step active" id="s1">1 · Applicant</div>
+  <div class="step" id="s2">2 · Processing</div>
+  <div class="step" id="s3">3 · Lender match</div>
+  <div class="step" id="s4">4 · Next step</div>
+</nav>
+
+<main>
+
+<!-- ========== STEP 1 ========== -->
+<section class="panel on" id="p1">
+  <h2 class="sec">Applicant details</h2>
+  <p class="lede">In production this would be submitted to participating lenders for a soft credit inquiry and asset verification. Here it goes nowhere — the fields exist to show the shape of the flow.</p>
+
+  <fieldset>
+    <p class="eyebrow">Buyer</p>
+    <div class="grid2">
+      <div class="f"><label for="bName">Full name</label><input id="bName" type="text" placeholder="Jordan Reyes"></div>
+      <div class="f"><label for="bPhone">Phone</label><input id="bPhone" type="tel" placeholder="(303) 555-0147"></div>
+      <div class="f"><label for="bEmail">Email</label><input id="bEmail" type="email" placeholder="jordan@example.com"></div>
+      <div class="f"><label for="bAddr">Home address</label><input id="bAddr" type="text" placeholder="1420 Larimer St, Denver, CO 80202"></div>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <p class="eyebrow">Supporting documents</p>
+    <p style="font-size:12.5px;color:var(--ink-2);margin:-4px 0 12px;max-width:68ch">
+      Tap to mark a document as provided. <strong>No file upload is possible</strong> — nothing is collected, stored, or transmitted.
+    </p>
+    <div class="docs" id="docs"></div>
+  </fieldset>
+
+  <fieldset>
+    <p class="eyebrow">Authorization</p>
+    <div class="consent">
+      <div class="policy">
+        <p class="eyebrow">Policy that would apply in production — not in force in this demo</p>
+        <ul>
+          <li>A <strong>soft</strong> credit inquiry only. Soft inquiries do not affect a credit score and are not visible to other lenders.</li>
+          <li>Information is used solely to assess SBA 7(a) eligibility. It is not sold, shared with third parties, or used for marketing.</li>
+          <li>Data is encrypted in transit and at rest for the duration of the review.</li>
+          <li>Records are securely deleted by each participating lender within 90 days of the review closing, and a deletion confirmation is sent to the applicant.</li>
+          <li>Authorization may be withdrawn at any time before submission.</li>
+        </ul>
+      </div>
+      <div class="checkline">
+        <input type="checkbox" id="consent">
+        <label for="consent"><strong>I understand this is a demonstration.</strong> No credit inquiry will be performed, no lender will receive my information, and nothing I enter leaves this browser. The policy above describes intended production behavior only.</label>
+      </div>
+    </div>
+  </fieldset>
+
+  <div class="actions">
+    <button class="btn" id="go1" disabled>Run simulated verification</button>
+    <span class="err" id="err1"></span>
+  </div>
+</section>
+
+<!-- ========== STEP 2 ========== -->
+<section class="panel" id="p2">
+  <h2 class="sec">Processing</h2>
+  <p class="lede">Simulated. Each row represents a check a lender would run against the submitted profile.</p>
+  <div class="spinwrap"><div class="spinner" id="spin"></div><span class="t" id="spinText">Transmitting to participating lenders…</span></div>
+  <div class="checks" id="checks"></div>
+  <div class="actions"><button class="btn" id="go2" disabled>View lender matches</button></div>
+</section>
+
+<!-- ========== STEP 3 ========== -->
+<section class="panel" id="p3">
+  <h2 class="sec">Lender matches</h2>
+  <p class="lede" id="p3lede"></p>
+  <div style="overflow-x:auto">
+    <table class="lenders">
+      <thead><tr>
+        <th>Lender</th><th>Rate</th><th>Est. fees</th><th>Monthly P&amp;I</th><th>Decision</th><th></th>
+      </tr></thead>
+      <tbody id="lenderBody"></tbody>
+    </table>
+  </div>
+  <div class="notice no-print">
+    <p class="eyebrow">How these numbers were produced</p>
+    Rates are illustrative, generated from published SBA 7(a) spread caps at a 6.75% prime rate — lenders over $350,000 are capped at prime + 3.0%. Fees are representative of guaranty, packaging, valuation, and closing costs. No lender quoted these figures. All institutions, contacts, and addresses are fictional.
+  </div>
+  <div class="actions">
+    <button class="btn" id="go3" disabled>Continue</button>
+    <button class="btn ghost" id="printBtn">Print comparison</button>
+  </div>
+  <p class="disclaimer">
+    Simulated output for demonstration. Not a prequalification, commitment to lend, credit decision, or offer of credit.
+    No soft or hard credit inquiry was performed. The institutions listed do not exist. Actual SBA 7(a) pricing depends on
+    lender, borrower credit, loan size, term, and collateral, and is subject to SBA maximum spread rules.
+  </p>
+</section>
+
+<!-- ========== STEP 4 ========== -->
+<section class="panel" id="p4">
+  <h2 class="sec">Next step</h2>
+  <p class="lede" id="p4lede"></p>
+  <div class="choice">
+    <div class="opt" id="optCall" tabindex="0" role="button">
+      <h4>Schedule a call</h4>
+      <p>Book time with the lender contact. In production this would open their calendar and place a hold.</p>
+    </div>
+    <div class="opt" id="optMsg" tabindex="0" role="button">
+      <h4>Send an introduction</h4>
+      <p>Forward your readiness summary with a short note. The lender responds by email on their own timeline.</p>
+    </div>
+  </div>
+  <div id="confirm" style="display:none;margin-top:26px">
+    <p class="eyebrow">Simulated confirmation</p>
+    <div class="receipt" id="receiptBody"></div>
+  </div>
+  <div class="actions">
+    <button class="btn ghost" id="restart">Start over</button>
+    <a class="btn ghost" href="index.html" style="text-decoration:none;display:inline-block">Back to summary</a>
+  </div>
+</section>
+
+</main>
+
+<script>
+(function(){
+  "use strict";
+  var $ = function(id){ return document.getElementById(id); };
+
+  /* ---------- loan amount from ?amount= (set by the summary page) ---------- */
+  var params = new URLSearchParams(location.search);
+  var loan = parseFloat(params.get("amount"));
+  if(!isFinite(loan) || loan <= 0) loan = 1800000;
+
+  var usd = function(n){
+    return new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0}).format(Math.round(n));
+  };
+  function pmt(p, ratePct, yrs){
+    var r=(ratePct/100)/12, n=yrs*12;
+    return p*r/(1-Math.pow(1+r,-n));
+  }
+
+  /* ---------- documents ---------- */
+  var DOCS = [
+    ["Bank statements","Required · 3 months"],
+    ["Pay stubs","Required · 2 months"],
+    ["401(k) statement","Required"],
+    ["Roth IRA statement","Optional"],
+    ["Brokerage statement","Optional"],
+    ["Home ownership / deed","Required"],
+    ["Mortgage statement","Optional"],
+    ["Prior year tax return","Required"],
+    ["Other verifiable assets","Optional"]
+  ];
+  var picked = {};
+  (function renderDocs(){
+    $("docs").innerHTML = DOCS.map(function(d,ix){
+      return '<div class="doc" data-ix="'+ix+'" tabindex="0" role="button" aria-pressed="false">'
+        + '<span class="n">'+d[0]+'<span class="req">'+d[1]+'</span></span>'
+        + '<span class="mark">Add</span></div>';
+    }).join("");
+    Array.prototype.forEach.call($("docs").children, function(el){
+      var toggle = function(){
+        var ix = el.getAttribute("data-ix");
+        picked[ix] = !picked[ix];
+        el.classList.toggle("on", !!picked[ix]);
+        el.setAttribute("aria-pressed", picked[ix] ? "true" : "false");
+        el.querySelector(".mark").textContent = picked[ix] ? "Provided" : "Add";
+        gate();
+      };
+      el.addEventListener("click", toggle);
+      el.addEventListener("keydown", function(e){
+        if(e.key === "Enter" || e.key === " "){ e.preventDefault(); toggle(); }
+      });
+    });
+  })();
+
+  /* ---------- step 1 gating ---------- */
+  var FIELDS = ["bName","bPhone","bEmail","bAddr"];
+  function filled(){ return FIELDS.every(function(id){ return $(id).value.trim().length > 1; }); }
+  function docCount(){ return Object.keys(picked).filter(function(k){ return picked[k]; }).length; }
+  function gate(){
+    var ok = filled() && $("consent").checked && docCount() >= 3;
+    $("go1").disabled = !ok;
+    var msg = "";
+    if(!filled()) msg = "Complete all buyer fields.";
+    else if(docCount() < 3) msg = "Mark at least three documents as provided.";
+    else if(!$("consent").checked) msg = "Authorization is required.";
+    $("err1").textContent = msg;
+  }
+  FIELDS.forEach(function(id){ $(id).addEventListener("input", gate); });
+  $("consent").addEventListener("change", gate);
+  gate();
+
+  /* ---------- step navigation ---------- */
+  function show(n){
+    [1,2,3,4].forEach(function(i){
+      $("p"+i).classList.toggle("on", i === n);
+      var s = $("s"+i);
+      s.classList.toggle("active", i === n);
+      s.classList.toggle("done", i < n);
+    });
+    window.scrollTo({top:0, behavior:"smooth"});
+  }
+
+  /* ---------- step 2: processing ---------- */
+  var CHECKS = [
+    ["Identity verification","Consumer bureau"],
+    ["Soft credit inquiry","Consumer bureau"],
+    ["Liquidity verification","Depository"],
+    ["Retirement asset review","Custodian"],
+    ["Income continuity","Payroll"],
+    ["Real property equity","County records"],
+    ["SBA 7(a) eligibility screen","Lender"],
+    ["Lender matching","Platform"]
+  ];
+  function runChecks(){
+    $("checks").innerHTML = CHECKS.map(function(c,i){
+      return '<div class="chk"><span class="lbl">'+c[0]+'</span>'
+        + '<span class="who">'+c[1]+'</span>'
+        + '<span class="bar"><i id="bar'+i+'"></i></span>'
+        + '<span class="state" id="st'+i+'">Queued</span></div>';
+    }).join("");
+    // rebuild grid so bar sits in the right column
+    Array.prototype.forEach.call(document.querySelectorAll(".chk"), function(el){
+      el.style.gridTemplateColumns = window.innerWidth < 640 ? "1fr 78px" : "1fr 118px 130px 88px";
+    });
+
+    var i = 0;
+    function next(){
+      if(i >= CHECKS.length){
+        $("spin").style.display = "none";
+        $("spinText").textContent = "Complete — 6 lenders returned indicative terms.";
+        $("go2").disabled = false;
+        return;
+      }
+      var bar = $("bar"+i), st = $("st"+i);
+      st.textContent = "Running";
+      var pct = 0;
+      var t = setInterval(function(){
+        pct += 14 + Math.random()*20;
+        if(pct >= 100){
+          pct = 100; clearInterval(t);
+          bar.style.width = "100%";
+          st.textContent = "Verified"; st.className = "state ok";
+          i++; setTimeout(next, 130);
+        } else {
+          bar.style.width = pct + "%";
+        }
+      }, 105);
+    }
+    setTimeout(next, 500);
+  }
+
+  /* ---------- step 3: lenders ---------- */
+  var LENDERS = [
+    {n:"Cardinal Ridge Bank", c:"Marguerite Alvarado, VP SBA Lending", a:"1801 Pearl Street, Suite 400, Boulder, CO 80302",
+     p:"(303) 555-0182", e:"m.alvarado@cardinalridge.example", spread:2.25, feePct:2.9, dec:"7 business days"},
+    {n:"Wayfarer Community Bank", c:"Desmond Achebe, Commercial Relationship Manager", a:"215 East Oak Street, Fort Collins, CO 80524",
+     p:"(970) 555-0119", e:"d.achebe@wayfarercb.example", spread:2.50, feePct:2.6, dec:"10 business days"},
+    {n:"Blue Larkspur Financial", c:"Ingrid Sørensen, Director of Acquisition Finance", a:"1660 Lincoln Street, Floor 12, Denver, CO 80264",
+     p:"(720) 555-0163", e:"i.sorensen@bluelarkspur.example", spread:2.40, feePct:3.1, dec:"6 business days"},
+    {n:"Ironwood Prairie Bank", c:"Theo Vandenberg, Senior SBA Underwriter", a:"440 South 13th Street, Lincoln, NE 68508",
+     p:"(402) 555-0155", e:"t.vandenberg@ironwoodprairie.example", spread:2.75, feePct:2.4, dec:"12 business days"},
+    {n:"Foxglove National", c:"Priya Raghunathan, Head of Small Business Credit", a:"902 Farnam Street, Omaha, NE 68102",
+     p:"(402) 555-0107", e:"p.raghunathan@foxglovenational.example", spread:2.65, feePct:2.8, dec:"9 business days"},
+    {n:"Sandhill Commerce Bank", c:"Owen Castellanos, SBA Program Manager", a:"77 West Mountain Avenue, Colorado Springs, CO 80903",
+     p:"(719) 555-0134", e:"o.castellanos@sandhillcommerce.example", spread:3.00, feePct:2.2, dec:"5 business days"}
+  ];
+  var PRIME = 6.75, TERM = 10, selected = null;
+
+  function renderLenders(){
+    $("p3lede").textContent = "Indicative terms on a " + usd(loan)
+      + " SBA 7(a) acquisition loan, " + TERM + "-year amortization. Sorted by rate.";
+    var rows = LENDERS.map(function(L){
+      L.rate = PRIME + L.spread;
+      L.fees = loan * (L.feePct/100);
+      L.mo = pmt(loan, L.rate, TERM);
+      return L;
+    }).sort(function(a,b){ return a.rate - b.rate; });
+
+    $("lenderBody").innerHTML = rows.map(function(L,ix){
+      return '<tr id="row'+ix+'">'
+        + '<td><span class="bank">'+L.n+'</span><span class="bankmeta">'+L.c+'<br>'+L.a+'<br>'+L.p+' · '+L.e+'</span></td>'
+        + '<td data-l="Rate">'+L.rate.toFixed(2)+'%<span class="bankmeta">Prime + '+L.spread.toFixed(2)+'%</span></td>'
+        + '<td data-l="Est. fees">'+usd(L.fees)+'<span class="bankmeta">'+L.feePct.toFixed(1)+'% of loan</span></td>'
+        + '<td data-l="Monthly P&I">'+usd(L.mo)+'</td>'
+        + '<td data-l="Decision">'+L.dec+'</td>'
+        + '<td><button class="pick" data-ix="'+ix+'">Select</button></td>'
+        + '</tr>';
+    }).join("");
+
+    Array.prototype.forEach.call($("lenderBody").querySelectorAll(".pick"), function(b){
+      b.addEventListener("click", function(){
+        var ix = +b.getAttribute("data-ix");
+        selected = rows[ix];
+        Array.prototype.forEach.call($("lenderBody").querySelectorAll(".pick"), function(x){
+          x.classList.remove("on"); x.textContent = "Select";
+        });
+        Array.prototype.forEach.call($("lenderBody").querySelectorAll("tr"), function(x){ x.classList.remove("sel"); });
+        b.classList.add("on"); b.textContent = "Selected";
+        $("row"+ix).classList.add("sel");
+        $("go3").disabled = false;
+      });
+    });
+  }
+
+  /* ---------- step 4 ---------- */
+  function renderChoice(){
+    $("p4lede").textContent = selected
+      ? "You selected " + selected.n + " at " + selected.rate.toFixed(2) + "%. Choose how to make contact."
+      : "Choose how to make contact.";
+    $("confirm").style.display = "none";
+    $("optCall").classList.remove("on");
+    $("optMsg").classList.remove("on");
+  }
+  function confirmChoice(kind){
+    $("optCall").classList.toggle("on", kind === "call");
+    $("optMsg").classList.toggle("on", kind === "msg");
+    var when = new Date(Date.now() + 3*864e5)
+      .toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"});
+    var rows = kind === "call"
+      ? [["Action","Call scheduled (simulated)"],["Lender",selected.n],["Contact",selected.c],
+         ["Proposed time",when + ", 10:00 AM MT"],["Phone",selected.p],["Status","No calendar invitation was sent"]]
+      : [["Action","Introduction sent (simulated)"],["Lender",selected.n],["Contact",selected.c],
+         ["Delivered to",selected.e],["Attachment","Readiness summary (demo)"],["Status","No message was transmitted"]];
+    $("receiptBody").innerHTML = rows.map(function(r){
+      return '<div class="r"><span>'+r[0]+'</span><span>'+r[1]+'</span></div>';
+    }).join("");
+    $("confirm").style.display = "";
+  }
+
+  /* ---------- wiring ---------- */
+  $("go1").addEventListener("click", function(){ show(2); runChecks(); });
+  $("go2").addEventListener("click", function(){ show(3); renderLenders(); });
+  $("go3").addEventListener("click", function(){ show(4); renderChoice(); });
+  $("printBtn").addEventListener("click", function(){ window.print(); });
+  $("optCall").addEventListener("click", function(){ confirmChoice("call"); });
+  $("optMsg").addEventListener("click", function(){ confirmChoice("msg"); });
+  ["optCall","optMsg"].forEach(function(id){
+    $(id).addEventListener("keydown", function(e){
+      if(e.key === "Enter" || e.key === " "){ e.preventDefault(); $(id).click(); }
+    });
+  });
+  $("restart").addEventListener("click", function(){
+    selected = null; $("go2").disabled = true; $("go3").disabled = true;
+    $("spin").style.display = ""; $("spinText").textContent = "Transmitting to participating lenders…";
+    show(1);
+  });
+})();
+</script>
+</body>
+</html>
