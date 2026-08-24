@@ -780,6 +780,12 @@ td.neg{color:var(--gap);}
         location.href = location.pathname;
       });
     }
+
+    var auto;
+    try { auto = sessionStorage.getItem("ar_autoprint"); sessionStorage.removeItem("ar_autoprint"); } catch(e){}
+    if(auto === "1"){
+      setTimeout(function(){ window.print(); }, 700);
+    }
   }
   hydrateVerified();
 

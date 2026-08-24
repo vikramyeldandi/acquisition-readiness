@@ -287,10 +287,16 @@ fieldset{border:0;padding:0;margin:0 0 28px;}
     Rates are illustrative, generated from published SBA 7(a) spread caps at a 6.75% prime rate — lenders over $350,000 are capped at prime + 3.0%. Fees are representative of guaranty, packaging, valuation, and closing costs. No lender quoted these figures. All institutions, contacts, and addresses are fictional.
   </div>
   <div class="actions">
-    <button class="btn" id="go3" disabled>Continue</button>
+    <button class="btn" id="printReport" disabled>Print soft-approved report</button>
+    <button class="btn ghost" id="go3" disabled>Continue</button>
     <button class="btn ghost" id="summaryBtn" disabled>Open readiness summary</button>
-    <button class="btn ghost" id="printBtn">Print comparison</button>
+    <button class="btn ghost" id="printBtn">Print this lender comparison</button>
   </div>
+  <p style="font-size:12.5px;color:var(--ink-2);margin:14px 0 0;max-width:74ch" class="no-print">
+    <strong>Soft-approved report</strong> is the readiness summary with your details and the selected
+    lender attached &mdash; the document a buyer would share with a broker. It opens and prints in one step,
+    and carries a demo watermark because the lender terms are simulated.
+  </p>
   <p class="disclaimer">
     Simulated output for demonstration. Not a prequalification, commitment to lend, credit decision, or offer of credit.
     No soft or hard credit inquiry was performed. The institutions listed do not exist. Actual SBA 7(a) pricing depends on
@@ -317,7 +323,8 @@ fieldset{border:0;padding:0;margin:0 0 28px;}
     <div class="receipt" id="receiptBody"></div>
   </div>
   <div class="actions">
-    <button class="btn" id="summaryBtn2">Acquisition readiness summary</button>
+    <button class="btn" id="printReport2">Print soft-approved report</button>
+    <button class="btn ghost" id="summaryBtn2">Open readiness summary</button>
     <button class="btn ghost" id="restart">Start over</button>
   </div>
   <p style="font-size:12.5px;color:var(--ink-2);margin:14px 0 0;max-width:70ch">
@@ -508,6 +515,7 @@ fieldset{border:0;padding:0;margin:0 0 28px;}
         $("row"+ix).classList.add("sel");
         $("go3").disabled = false;
         $("summaryBtn").disabled = false;
+        $("printReport").disabled = false;
       });
     });
   }
@@ -561,9 +569,12 @@ fieldset{border:0;padding:0;margin:0 0 28px;}
     catch(e){ return false; }
     return true;
   }
-  function toSummary(){
-    if(persist()) location.href = "index.html";
-    else alert("Select a lender first.");
+  function toSummary(autoPrint){
+    if(!persist()){ alert("Select a lender first."); return; }
+    if(autoPrint === true){
+      try { sessionStorage.setItem("ar_autoprint","1"); } catch(e){}
+    }
+    location.href = "index.html";
   }
 
   /* ---------- wiring ---------- */
@@ -571,8 +582,10 @@ fieldset{border:0;padding:0;margin:0 0 28px;}
   $("go2").addEventListener("click", function(){ show(3); renderLenders(); });
   $("go3").addEventListener("click", function(){ show(4); renderChoice(); });
   $("printBtn").addEventListener("click", function(){ window.print(); });
-  $("summaryBtn").addEventListener("click", toSummary);
-  $("summaryBtn2").addEventListener("click", toSummary);
+  $("summaryBtn").addEventListener("click", function(){ toSummary(false); });
+  $("summaryBtn2").addEventListener("click", function(){ toSummary(false); });
+  $("printReport").addEventListener("click", function(){ toSummary(true); });
+  $("printReport2").addEventListener("click", function(){ toSummary(true); });
   $("optCall").addEventListener("click", function(){ confirmChoice("call"); });
   $("optMsg").addEventListener("click", function(){ confirmChoice("msg"); });
   ["optCall","optMsg"].forEach(function(id){
@@ -584,6 +597,7 @@ fieldset{border:0;padding:0;margin:0 0 28px;}
     try { sessionStorage.removeItem("ar_verified"); } catch(e){}
     selected = null; $("go2").disabled = true; $("go3").disabled = true;
     $("summaryBtn").disabled = true;
+    $("printReport").disabled = true;
     $("spin").style.display = ""; $("spinText").textContent = "Transmitting to participating lenders…";
     show(1);
   });
