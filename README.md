@@ -36,3 +36,15 @@ floor) reflect commonly published lender guidance and vary by lender and deal.
 
 Keep these distinct. The summary is what you hand a broker. The verification flow is what you
 show an investor or a prospective partner to explain where the product goes.
+
+## Two printable artifacts
+
+**Clean readiness summary** (`index.html`, default state) — self-reported figures only. No lender
+content, no watermark. This is the artifact for broker testing.
+
+**Verified summary** (`index.html` after completing `verify.html`) — adds applicant details and the
+selected lender, with an "indicative terms received" status. Carries the demo banner and a print
+watermark, because the lender terms on it are simulated.
+
+Handoff between pages uses `sessionStorage`: tab-scoped, cleared when the tab closes, never
+transmitted. Use "Clear lender data" on the summary to return to the clean state.

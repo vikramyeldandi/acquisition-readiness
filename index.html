@@ -204,10 +204,61 @@ td.neg{color:var(--gap);}
   a{text-decoration:none;color:inherit;}
 }
 
+
+/* ---------- verified state ---------- */
+.demobar{
+  display:none;background:var(--demo);color:#fff;
+  font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  padding:7px 20px;justify-content:space-between;gap:16px;flex-wrap:wrap;
+}
+.demobar.on{display:flex;}
+.demobar span:last-child{opacity:.85;letter-spacing:.08em;text-transform:none;font-size:10.5px;}
+
+.vblock{display:none;border-top:1.5px solid var(--rule-strong);margin-top:30px;}
+.vblock.on{display:block;}
+.vhead{display:flex;justify-content:space-between;align-items:baseline;gap:14px;
+  flex-wrap:wrap;padding:13px 0 11px;border-bottom:1px solid var(--rule);}
+.vhead h3{font-family:var(--ui);font-weight:600;font-size:13.5px;margin:0;}
+.vstatus{font-family:var(--mono);font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;
+  padding:5px 10px;background:var(--clear-soft);color:var(--clear);}
+.vgrid{display:grid;grid-template-columns:1fr 1fr;gap:0;}
+.vcol{padding:14px 0;}
+.vcol:first-child{padding-right:26px;border-right:1px solid var(--rule);}
+.vcol:last-child{padding-left:26px;}
+@media (max-width:700px){
+  .vgrid{grid-template-columns:1fr;}
+  .vcol:first-child{padding-right:0;border-right:0;border-bottom:1px solid var(--rule);}
+  .vcol:last-child{padding-left:0;}
+}
+.vrow{display:flex;justify-content:space-between;gap:14px;padding:5px 0;font-family:var(--mono);font-size:12px;}
+.vrow span:first-child{font-family:var(--ui);font-size:12.5px;color:var(--ink-2);flex:none;}
+.vrow span:last-child{text-align:right;word-break:break-word;}
+.vcaveat{font-size:11.5px;color:var(--ink-2);line-height:1.55;padding:11px 0 0;
+  border-top:1px solid var(--rule);margin-top:4px;}
+
+.watermark{display:none;}
+
+@media print{
+  .demobar.on{display:flex !important;position:static;background:#fff;color:#000;
+    border:1.5pt solid #000;padding:6px 10px;margin-bottom:12px;}
+  .watermark.on{
+    display:block;position:fixed;top:44%;left:0;right:0;text-align:center;
+    font-family:var(--mono);font-size:52pt;letter-spacing:.2em;color:rgba(0,0,0,.07);
+    transform:rotate(-24deg);z-index:0;pointer-events:none;
+  }
+  .vblock.on{display:block !important;page-break-inside:avoid;}
+}
+
 @media (prefers-reduced-motion:reduce){*{transition:none !important;animation:none !important;}}
 </style>
 </head>
 <body>
+
+<div class="demobar" id="demobar">
+  <span>Demo — simulated</span>
+  <span>Lender content below is simulated. No credit inquiry occurred. Institutions shown are fictional.</span>
+</div>
+<div class="watermark" id="watermark">DEMO — SIMULATED</div>
 
 <header class="masthead">
   <div>
@@ -357,6 +408,28 @@ td.neg{color:var(--gap);}
       <p class="assumptions" id="assumptions"></p>
     </section>
 
+    <section class="vblock" id="vblock">
+      <div class="vhead">
+        <h3>Applicant and lender</h3>
+        <span class="vstatus">Indicative terms received &mdash; subject to transaction review</span>
+      </div>
+      <div class="vgrid">
+        <div class="vcol">
+          <p class="eyebrow" style="margin-bottom:8px">Applicant</p>
+          <div id="vApplicant"></div>
+        </div>
+        <div class="vcol">
+          <p class="eyebrow" style="margin-bottom:8px">Selected lender</p>
+          <div id="vLender"></div>
+        </div>
+      </div>
+      <p class="vcaveat">
+        Indicative terms reflect a preliminary review of self-reported applicant information only. They are
+        not a prequalification, commitment to lend, or credit decision, and remain subject to full review of
+        a specific transaction, business financials, and formal underwriting. Pricing and eligibility may change.
+      </p>
+    </section>
+
     <p class="disclaimer">
       All figures derive from inputs supplied by the buyer and have not been verified by any third party.
       This is not a prequalification, a commitment to lend, or a credit decision, and it is not legal,
@@ -370,6 +443,7 @@ td.neg{color:var(--gap);}
       <button class="btn" id="printBtn">Print / save as PDF</button>
       <button class="btn ghost" id="copyBtn">Copy figures</button>
       <a class="btn ghost" id="verifyLink" href="verify.html" style="text-decoration:none;display:inline-block">Lender verification (demo)</a>
+      <button class="btn ghost" id="clearBtn" style="display:none">Clear lender data</button>
     </div>
   </main>
 </div>
@@ -659,6 +733,55 @@ td.neg{color:var(--gap);}
       document.body.removeChild(ta);
     }
   });
+
+  /* ---------- verified state, hydrated from the verification demo ---------- */
+  function hydrateVerified(){
+    var raw;
+    try { raw = sessionStorage.getItem("ar_verified"); } catch(e){ return; }
+    if(!raw) return;
+    var d;
+    try { d = JSON.parse(raw); } catch(e){ return; }
+    if(!d || !d.lender) return;
+
+    var esc = function(t){
+      return String(t == null ? "" : t)
+        .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+    };
+    var rows = function(pairs){
+      return pairs.filter(function(p){ return p[1]; })
+        .map(function(p){ return '<div class="vrow"><span>'+esc(p[0])+'</span><span>'+esc(p[1])+'</span></div>'; })
+        .join("");
+    };
+
+    $("vApplicant").innerHTML = rows([
+      ["Name", d.name], ["Phone", d.phone], ["Email", d.email],
+      ["Address", d.address], ["Documents provided", d.docs ? d.docs + " of 9" : ""],
+      ["Reviewed", d.date]
+    ]);
+    $("vLender").innerHTML = rows([
+      ["Institution", d.lender], ["Contact", d.contact], ["Address", d.lenderAddress],
+      ["Phone", d.lenderPhone], ["Email", d.lenderEmail],
+      ["Indicative rate", d.rate], ["Est. fees", d.fees],
+      ["Monthly P&I", d.monthly], ["Decision window", d.decision]
+    ]);
+
+    $("vblock").classList.add("on");
+    $("demobar").classList.add("on");
+    $("watermark").classList.add("on");
+    var st = document.querySelector(".stamp");
+    if(st) st.textContent = "Simulated verification \u00B7 Not a prequalification";
+    var pb = $("printBtn");
+    if(pb) pb.textContent = "Print verified summary";
+    var cb = $("clearBtn");
+    if(cb){
+      cb.style.display = "";
+      cb.addEventListener("click", function(){
+        try { sessionStorage.removeItem("ar_verified"); } catch(e){}
+        location.href = location.pathname;
+      });
+    }
+  }
+  hydrateVerified();
 
   render();
 })();

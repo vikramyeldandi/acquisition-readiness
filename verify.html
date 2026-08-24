@@ -288,6 +288,7 @@ fieldset{border:0;padding:0;margin:0 0 28px;}
   </div>
   <div class="actions">
     <button class="btn" id="go3" disabled>Continue</button>
+    <button class="btn ghost" id="summaryBtn" disabled>Open readiness summary</button>
     <button class="btn ghost" id="printBtn">Print comparison</button>
   </div>
   <p class="disclaimer">
@@ -316,9 +317,13 @@ fieldset{border:0;padding:0;margin:0 0 28px;}
     <div class="receipt" id="receiptBody"></div>
   </div>
   <div class="actions">
+    <button class="btn" id="summaryBtn2">Acquisition readiness summary</button>
     <button class="btn ghost" id="restart">Start over</button>
-    <a class="btn ghost" href="index.html" style="text-decoration:none;display:inline-block">Back to summary</a>
   </div>
+  <p style="font-size:12.5px;color:var(--ink-2);margin:14px 0 0;max-width:70ch">
+    Opens the readiness summary with your details and the selected lender attached, ready to print.
+    It carries a demo watermark, because the lender terms on it are simulated.
+  </p>
 </section>
 
 </main>
@@ -502,6 +507,7 @@ fieldset{border:0;padding:0;margin:0 0 28px;}
         b.classList.add("on"); b.textContent = "Selected";
         $("row"+ix).classList.add("sel");
         $("go3").disabled = false;
+        $("summaryBtn").disabled = false;
       });
     });
   }
@@ -531,11 +537,42 @@ fieldset{border:0;padding:0;margin:0 0 28px;}
     $("confirm").style.display = "";
   }
 
+  /* ---------- hand off to the readiness summary ---------- */
+  function persist(){
+    if(!selected) return false;
+    var payload = {
+      name: $("bName").value.trim(),
+      phone: $("bPhone").value.trim(),
+      email: $("bEmail").value.trim(),
+      address: $("bAddr").value.trim(),
+      docs: docCount(),
+      date: new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"}),
+      lender: selected.n,
+      contact: selected.c,
+      lenderAddress: selected.a,
+      lenderPhone: selected.p,
+      lenderEmail: selected.e,
+      rate: selected.rate.toFixed(2) + "% (Prime + " + selected.spread.toFixed(2) + "%)",
+      fees: usd(selected.fees) + " (" + selected.feePct.toFixed(1) + "% of loan)",
+      monthly: usd(selected.mo),
+      decision: selected.dec
+    };
+    try { sessionStorage.setItem("ar_verified", JSON.stringify(payload)); }
+    catch(e){ return false; }
+    return true;
+  }
+  function toSummary(){
+    if(persist()) location.href = "index.html";
+    else alert("Select a lender first.");
+  }
+
   /* ---------- wiring ---------- */
   $("go1").addEventListener("click", function(){ show(2); runChecks(); });
   $("go2").addEventListener("click", function(){ show(3); renderLenders(); });
   $("go3").addEventListener("click", function(){ show(4); renderChoice(); });
   $("printBtn").addEventListener("click", function(){ window.print(); });
+  $("summaryBtn").addEventListener("click", toSummary);
+  $("summaryBtn2").addEventListener("click", toSummary);
   $("optCall").addEventListener("click", function(){ confirmChoice("call"); });
   $("optMsg").addEventListener("click", function(){ confirmChoice("msg"); });
   ["optCall","optMsg"].forEach(function(id){
@@ -544,7 +581,9 @@ fieldset{border:0;padding:0;margin:0 0 28px;}
     });
   });
   $("restart").addEventListener("click", function(){
+    try { sessionStorage.removeItem("ar_verified"); } catch(e){}
     selected = null; $("go2").disabled = true; $("go3").disabled = true;
+    $("summaryBtn").disabled = true;
     $("spin").style.display = ""; $("spinText").textContent = "Transmitting to participating lenders…";
     show(1);
   });
