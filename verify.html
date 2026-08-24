@@ -7,85 +7,90 @@
 <meta name="description" content="Simulated SBA lender verification flow. Demonstration only. No credit inquiry occurs and no data is transmitted.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --paper:#FBFBF9; --field:#FFFFFF;
-  --ink:#14181C; --ink-2:#525A61; --ink-3:#8A9199;
-  --rule:#DCDDD8; --rule-mid:#B8BAB4; --rule-strong:#2A3036;
-  --gap:#8C3A2B; --gap-soft:#F2E4E0;
-  --clear:#2E5E4E; --clear-soft:#E2ECE7;
-  --caution:#8A6520; --caution-soft:#F5EDDD;
-  --demo:#7A3E8C; --demo-soft:#F0E8F3;
-  --display:"Instrument Serif",Georgia,serif;
-  --ui:"Archivo",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --page:#DDEBF6; --surface:#FFFFFF; --surface-2:#F5FAFD;
+  --paper:#FFFFFF; --field:#FFFFFF;
+  --ink:#10202E; --ink-2:#47606F; --ink-3:#7C93A3;
+  --rule:#E1EAF1; --rule-mid:#BACBD8; --rule-strong:#1B3B52;
+  --gap:#A33A2B; --gap-soft:#FAEAE7;
+  --clear:#1F6B54; --clear-soft:#E4F1EC;
+  --caution:#8A6520; --caution-soft:#F8F0DF;
+  --demo:#6B3E8C; --demo-soft:#F1EAF6;
+  --display:"Public Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --ui:"Public Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --shadow:0 1px 2px rgba(16,32,46,.05),0 4px 14px rgba(16,32,46,.06);
 }
 *{box-sizing:border-box;}
 html{-webkit-text-size-adjust:100%;}
-body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--ui);
-  font-size:15px;line-height:1.5;font-variant-numeric:tabular-nums;}
+body{margin:0;background:var(--page);color:var(--ink);font-family:var(--ui);
+  font-size:15px;line-height:1.55;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;}
 :focus-visible{outline:2px solid var(--rule-strong);outline-offset:2px;}
 
 /* demo banner */
 .demobar{
   position:sticky;top:0;z-index:50;background:var(--demo);color:#fff;
-  font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
-  padding:7px 20px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  font-size:12px;font-weight:500;padding:9px 22px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
 }
-.demobar span:last-child{opacity:.8;letter-spacing:.08em;text-transform:none;font-size:10.5px;}
+.demobar b{font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:11px;}
+.demobar span:last-child{opacity:.9;font-weight:400;}
 
-.masthead{border-bottom:1.5px solid var(--rule-strong);padding:24px 28px 18px;
-  display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;}
-.masthead h1{font-family:var(--display);font-weight:400;font-size:29px;margin:0 0 4px;letter-spacing:-.01em;}
+.masthead{padding:24px 26px 18px;display:flex;justify-content:space-between;
+  align-items:flex-end;gap:20px;flex-wrap:wrap;max-width:1100px;margin:0 auto;}
+.masthead h1{font-size:25px;font-weight:700;margin:0 0 5px;letter-spacing:-.022em;}
 .masthead p{margin:0;color:var(--ink-2);font-size:13.5px;max-width:58ch;}
-.backlink{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
-  color:var(--ink-2);text-decoration:none;border-bottom:1px solid var(--rule-mid);padding-bottom:2px;white-space:nowrap;}
-.backlink:hover{color:var(--ink);border-color:var(--ink);}
+.backlink{font-size:13px;font-weight:600;color:var(--ink-2);text-decoration:none;
+  background:var(--surface);border:1px solid var(--rule-mid);border-radius:7px;padding:9px 14px;white-space:nowrap;}
+.backlink:hover{color:var(--ink);border-color:var(--ink-3);}
 
 /* stepper */
-.steps{display:flex;gap:0;border-bottom:1px solid var(--rule);padding:0 28px;flex-wrap:wrap;}
-.step{font-family:var(--mono);font-size:10px;letter-spacing:.11em;text-transform:uppercase;
-  color:var(--ink-3);padding:12px 18px 11px;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;}
-.step.active{color:var(--ink);border-bottom-color:var(--rule-strong);}
+.steps{display:flex;gap:0;padding:0 26px;flex-wrap:wrap;max-width:1100px;margin:0 auto;
+  border-bottom:1px solid var(--rule-mid);}
+.step{font-size:12.5px;font-weight:600;color:var(--ink-3);padding:11px 17px 10px;
+  border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;}
+.step.active{color:var(--rule-strong);border-bottom-color:var(--rule-strong);}
 .step.done{color:var(--clear);}
 
-main{max-width:1000px;margin:0 auto;padding:30px 28px 80px;}
-@media (max-width:760px){main{padding:24px 20px 64px;} .masthead{padding:20px;} .steps{padding:0 12px;}}
+main{max-width:1100px;margin:0 auto;padding:26px 26px 70px;}
+.card{background:var(--surface);border-radius:10px;box-shadow:var(--shadow);padding:26px 28px 30px;}
+@media (max-width:760px){main{padding:18px 14px 56px;} .card{padding:20px 18px 24px;} .masthead{padding:20px 16px 14px;} .steps{padding:0 10px;}}
 
 .panel{display:none;}
 .panel.on{display:block;}
 
-h2.sec{font-family:var(--display);font-weight:400;font-size:24px;margin:0 0 6px;letter-spacing:-.01em;}
+h2.sec{font-size:21px;font-weight:700;margin:0 0 6px;letter-spacing:-.02em;}
 p.lede{color:var(--ink-2);font-size:14px;margin:0 0 26px;max-width:70ch;}
 
-.eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
   color:var(--ink-3);margin:0 0 11px;}
 
 fieldset{border:0;padding:0;margin:0 0 28px;}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px 20px;}
 @media (max-width:640px){.grid2{grid-template-columns:1fr;}}
 .f label{display:block;font-size:12px;color:var(--ink-2);margin-bottom:4px;}
-.f input{font-family:var(--mono);font-size:13px;color:var(--ink);background:var(--field);
-  border:1px solid var(--rule-mid);border-radius:0;padding:8px 9px;width:100%;}
+.f input{font-family:var(--ui);font-size:13.5px;color:var(--ink);background:var(--surface);
+  border:1px solid var(--rule-mid);border-radius:6px;padding:9px 11px;width:100%;}
+.f input:focus{border-color:var(--rule-strong);}
 .f input:hover{border-color:var(--ink-3);}
 .f input.bad{border-color:var(--gap);background:#FFF8F7;}
 
 /* document tiles */
 .docs{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:10px;}
-.doc{border:1px solid var(--rule-mid);background:var(--field);padding:12px 13px;cursor:pointer;
+.doc{border:1px solid var(--rule-mid);background:var(--surface);border-radius:8px;padding:13px 14px;cursor:pointer;
   display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
 .doc:hover{border-color:var(--ink-3);}
-.doc.on{border-color:var(--rule-strong);background:#fff;}
+.doc.on{border-color:var(--rule-strong);background:var(--surface-2);box-shadow:0 0 0 2px rgba(27,59,82,.07);}
 .doc .n{font-size:12.5px;line-height:1.35;}
-.doc .req{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);display:block;margin-top:3px;}
-.doc .mark{font-family:var(--mono);font-size:10px;letter-spacing:.09em;text-transform:uppercase;
+.doc .req{font-size:10.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3);display:block;margin-top:4px;}
+.doc .mark{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
   color:var(--ink-3);white-space:nowrap;padding-top:1px;}
 .doc.on .mark{color:var(--clear);}
 
 /* consent */
-.consent{border:1px solid var(--rule-mid);background:var(--field);padding:16px 17px;margin-top:6px;}
-.policy{border-left:2px solid var(--rule-mid);padding:11px 14px;margin:12px 0 15px;background:var(--paper);}
+.consent{border:1px solid var(--rule-mid);background:var(--surface);border-radius:9px;padding:17px 18px;margin-top:6px;}
+.policy{border-left:3px solid var(--rule-mid);padding:12px 15px;margin:12px 0 15px;background:var(--surface-2);border-radius:0 7px 7px 0;}
 .policy .eyebrow{margin-bottom:6px;}
 .policy ul{margin:0;padding-left:17px;font-size:12.5px;color:var(--ink-2);line-height:1.65;}
 .checkline{display:flex;gap:9px;align-items:flex-start;padding-top:13px;border-top:1px solid var(--rule);}
@@ -94,23 +99,23 @@ fieldset{border:0;padding:0;margin:0 0 28px;}
 .checkline strong{font-weight:600;}
 
 .actions{margin-top:26px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
-.btn{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
-  padding:11px 18px;border:1px solid var(--rule-strong);background:var(--rule-strong);color:var(--paper);
-  cursor:pointer;border-radius:0;}
-.btn.ghost{background:none;color:var(--ink);}
+.btn{font-size:13px;font-weight:600;font-family:var(--ui);padding:11px 18px;
+  border:1px solid var(--rule-strong);background:var(--rule-strong);color:#fff;
+  cursor:pointer;border-radius:7px;line-height:1.3;}
+.btn.ghost{background:var(--surface);color:var(--ink);border-color:var(--rule-mid);}
 .btn:disabled{opacity:.32;cursor:not-allowed;}
 .btn:not(:disabled):hover{opacity:.86;}
 .err{font-size:12.5px;color:var(--gap);}
 
 /* processing */
-.checks{border-top:1.5px solid var(--rule-strong);}
+.checks{border-top:2px solid var(--rule-strong);}
 .chk{display:grid;grid-template-columns:1fr 130px 92px;gap:14px;align-items:center;
   padding:11px 0;border-bottom:1px solid var(--rule);}
 .chk .lbl{font-size:13px;}
-.chk .who{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);}
-.bar{height:5px;background:var(--rule);position:relative;overflow:hidden;}
-.bar i{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--rule-strong);transition:width .3s linear;}
-.state{font-family:var(--mono);font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;text-align:right;color:var(--ink-3);}
+.chk .who{font-size:12px;color:var(--ink-3);}
+.bar{height:6px;background:var(--rule);border-radius:3px;position:relative;overflow:hidden;}
+.bar i{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--rule-strong);border-radius:3px;transition:width .3s linear;}
+.state{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;text-align:right;color:var(--ink-3);}
 .state.ok{color:var(--clear);}
 @media (max-width:640px){.chk{grid-template-columns:1fr 78px;} .chk .who{display:none;}}
 
@@ -118,47 +123,55 @@ fieldset{border:0;padding:0;margin:0 0 28px;}
 .spinner{width:17px;height:17px;border:2px solid var(--rule-mid);border-top-color:var(--rule-strong);
   border-radius:50%;animation:spin .8s linear infinite;flex:none;}
 @keyframes spin{to{transform:rotate(360deg);}}
-.spinwrap .t{font-family:var(--mono);font-size:11.5px;color:var(--ink-2);}
+.spinwrap .t{font-size:13px;color:var(--ink-2);font-weight:500;}
 
-/* lender table */
-.lenders{width:100%;border-collapse:collapse;font-size:13px;}
-.lenders th{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
-  color:var(--ink-3);text-align:right;font-weight:400;padding:0 0 8px;border-bottom:1px solid var(--rule-mid);}
-.lenders th:first-child{text-align:left;}
-.lenders td{padding:13px 0;border-bottom:1px solid var(--rule);text-align:right;
-  font-family:var(--mono);font-size:12.5px;vertical-align:top;}
-.lenders td:first-child{text-align:left;font-family:var(--ui);}
-.lenders tr.sel td{background:var(--clear-soft);}
-.bank{font-weight:600;font-size:13.5px;display:block;}
-.bankmeta{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);display:block;margin-top:3px;line-height:1.55;}
-.pick{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
-  border:1px solid var(--rule-mid);background:none;padding:6px 11px;cursor:pointer;color:var(--ink-2);}
-.pick:hover{border-color:var(--ink);color:var(--ink);}
-.pick.on{background:var(--rule-strong);border-color:var(--rule-strong);color:var(--paper);}
-@media (max-width:760px){
-  .lenders thead{display:none;}
-  .lenders tr{display:block;border-bottom:1px solid var(--rule-mid);padding:12px 0;}
-  .lenders td{display:flex;justify-content:space-between;border:0;padding:3px 0;text-align:right;}
-  .lenders td:first-child{display:block;margin-bottom:7px;}
-  .lenders td[data-l]:before{content:attr(data-l);font-family:var(--mono);font-size:9.5px;
-    letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3);}
-}
+/* lender cards */
+.lcards{display:flex;flex-direction:column;gap:13px;}
+.lcard{border:1px solid var(--rule-mid);background:var(--surface);border-radius:10px;
+  padding:17px 19px 18px;}
+.lcard.sel{border-color:var(--rule-strong);box-shadow:0 0 0 2px rgba(27,59,82,.10);background:var(--surface-2);}
+.lc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;}
+.lc-id{min-width:0;flex:1 1 260px;}
+.lc-name{font-size:16px;font-weight:700;letter-spacing:-.014em;margin:0 0 5px;
+  display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
+.badge{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  padding:3px 8px;border-radius:20px;white-space:nowrap;}
+.badge.plp{background:var(--clear-soft);color:var(--clear);}
+.badge.std{background:var(--caution-soft);color:var(--caution);}
+.lc-contact{font-size:13px;color:var(--ink-2);line-height:1.55;}
+.lc-contact .r2{color:var(--ink-3);font-size:12.5px;}
+.pick{font-size:12.5px;font-weight:600;font-family:var(--ui);border:1px solid var(--rule-mid);
+  background:var(--surface);border-radius:7px;padding:9px 16px;cursor:pointer;color:var(--ink-2);
+  white-space:nowrap;flex:none;}
+.pick:hover{border-color:var(--ink-3);color:var(--ink);}
+.pick.on{background:var(--rule-strong);border-color:var(--rule-strong);color:#fff;}
+.lc-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;margin-top:16px;
+  background:var(--rule);border:1px solid var(--rule);border-radius:8px;overflow:hidden;}
+.st{background:var(--surface);padding:11px 13px;}
+.lcard.sel .st{background:var(--surface-2);}
+.st .k{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--ink-3);display:block;margin-bottom:5px;line-height:1.35;}
+.st .v{font-family:var(--mono);font-size:15px;font-weight:500;letter-spacing:-.02em;
+  display:block;line-height:1.2;}
+.st .n{font-size:11px;color:var(--ink-3);display:block;margin-top:4px;line-height:1.35;}
+@media (max-width:900px){.lc-stats{grid-template-columns:repeat(3,1fr);}}
+@media (max-width:560px){.lc-stats{grid-template-columns:repeat(2,1fr);}}
 
 .choice{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px;}
 @media (max-width:640px){.choice{grid-template-columns:1fr;}}
-.opt{border:1px solid var(--rule-mid);background:var(--field);padding:16px 17px;cursor:pointer;}
+.opt{border:1px solid var(--rule-mid);background:var(--surface);border-radius:9px;padding:17px 18px;cursor:pointer;}
 .opt:hover{border-color:var(--ink-3);}
-.opt.on{border-color:var(--rule-strong);border-width:1.5px;}
+.opt.on{border-color:var(--rule-strong);box-shadow:0 0 0 2px rgba(27,59,82,.09);}
 .opt h4{margin:0 0 5px;font-size:13.5px;font-weight:600;}
 .opt p{margin:0;font-size:12.5px;color:var(--ink-2);line-height:1.5;}
 
-.receipt{border-top:1.5px solid var(--rule-strong);margin-top:8px;}
+.receipt{border-top:2px solid var(--rule-strong);margin-top:8px;}
 .receipt .r{display:flex;justify-content:space-between;gap:16px;padding:9px 0;border-bottom:1px solid var(--rule);
   font-family:var(--mono);font-size:12.5px;}
-.receipt .r span:first-child{font-family:var(--ui);font-size:13px;color:var(--ink-2);}
+.receipt .r span:first-child{font-family:var(--ui);font-size:13.5px;color:var(--ink-3);font-weight:500;}
 
-.notice{border-left:2px solid var(--demo);background:var(--demo-soft);padding:13px 15px;margin-top:24px;
-  font-size:12.5px;line-height:1.55;}
+.notice{border-left:3px solid var(--demo);background:var(--demo-soft);padding:14px 16px;margin-top:24px;
+  font-size:13px;line-height:1.6;border-radius:0 7px 7px 0;}
 .notice .eyebrow{color:var(--demo);margin-bottom:5px;}
 
 .disclaimer{margin-top:32px;padding-top:12px;border-top:1px solid var(--rule);
@@ -168,7 +181,8 @@ fieldset{border:0;padding:0;margin:0 0 28px;}
 .watermark{display:none;}
 @media print{
   @page{margin:14mm;}
-  body{background:#fff;font-size:10.5pt;}
+  html,body{background:#fff !important;font-size:10.5pt;}
+  .card{box-shadow:none;border-radius:0;padding:0;}
   .demobar{position:static;background:#fff;color:#000;border:1.5pt solid #000;padding:6px 10px;margin-bottom:12px;}
   .masthead,.steps,.actions,.notice,.no-print{display:none !important;}
   .panel{display:none !important;}
@@ -189,7 +203,7 @@ fieldset{border:0;padding:0;margin:0 0 28px;}
 <body>
 
 <div class="demobar">
-  <span>Demo — simulated</span>
+  <b>Demo — simulated</b>
   <span>No credit inquiry occurs. No data leaves this browser. Lenders shown are fictional.</span>
 </div>
 
@@ -213,7 +227,7 @@ fieldset{border:0;padding:0;margin:0 0 28px;}
 <main>
 
 <!-- ========== STEP 1 ========== -->
-<section class="panel on" id="p1">
+<section class="panel card on" id="p1">
   <h2 class="sec">Applicant details</h2>
   <p class="lede">In production this would be submitted to participating lenders for a soft credit inquiry and asset verification. Here it goes nowhere — the fields exist to show the shape of the flow.</p>
 
@@ -262,7 +276,7 @@ fieldset{border:0;padding:0;margin:0 0 28px;}
 </section>
 
 <!-- ========== STEP 2 ========== -->
-<section class="panel" id="p2">
+<section class="panel card" id="p2">
   <h2 class="sec">Processing</h2>
   <p class="lede">Simulated. Each row represents a check a lender would run against the submitted profile.</p>
   <div class="spinwrap"><div class="spinner" id="spin"></div><span class="t" id="spinText">Transmitting to participating lenders…</span></div>
@@ -271,17 +285,11 @@ fieldset{border:0;padding:0;margin:0 0 28px;}
 </section>
 
 <!-- ========== STEP 3 ========== -->
-<section class="panel" id="p3">
+<section class="panel card" id="p3">
   <h2 class="sec">Lender matches</h2>
   <p class="lede" id="p3lede"></p>
-  <div style="overflow-x:auto">
-    <table class="lenders">
-      <thead><tr>
-        <th>Lender</th><th>Rate</th><th>Est. fees</th><th>Monthly P&amp;I</th><th>Median term sheet</th><th>Median LOI&ndash;close</th><th></th>
-      </tr></thead>
-      <tbody id="lenderBody"></tbody>
-    </table>
-  </div>
+  <div class="lcards" id="lenderBody"></div>
+
   <div class="notice no-print">
     <p class="eyebrow">How these numbers were produced</p>
     <strong>Rates</strong> are illustrative, from published SBA 7(a) spread caps at a 6.75% prime rate &mdash; loans over $350,000 are capped at prime + 3.0%. Fees represent guaranty, packaging, valuation, and closing costs.
@@ -311,7 +319,7 @@ fieldset{border:0;padding:0;margin:0 0 28px;}
 </section>
 
 <!-- ========== STEP 4 ========== -->
-<section class="panel" id="p4">
+<section class="panel card" id="p4">
   <h2 class="sec">Next step</h2>
   <p class="lede" id="p4lede"></p>
   <div class="choice">
@@ -501,16 +509,34 @@ fieldset{border:0;padding:0;margin:0 0 28px;}
     }).sort(function(a,b){ return a.rate - b.rate; });
 
     $("lenderBody").innerHTML = rows.map(function(L,ix){
-      return '<tr id="row'+ix+'">'
-        + '<td><span class="bank">'+L.n+'</span><span class="bankmeta">'+L.c+'<br>'+L.a+'<br>'+L.p+' · '+L.e+'</span></td>'
-        + '<td data-l="Rate">'+L.rate.toFixed(2)+'%<span class="bankmeta">Prime + '+L.spread.toFixed(2)+'%</span></td>'
-        + '<td data-l="Est. fees">'+usd(L.fees)+'<span class="bankmeta">'+L.feePct.toFixed(1)+'% of loan</span></td>'
-        + '<td data-l="Monthly P&I">'+usd(L.mo)+'</td>'
-        + '<td data-l="Median term sheet">'+L.ts+' bus. days<span class="bankmeta">'
-          + (L.plp ? 'PLP \u00B7 delegated authority' : 'Standard \u00B7 SBA pre-review') + '</span></td>'
-        + '<td data-l="Median LOI-close">'+L.cl+' days<span class="bankmeta">n = '+L.n+' closings, trailing 12 mo</span></td>'
-        + '<td><button class="pick" data-ix="'+ix+'">Select</button></td>'
-        + '</tr>';
+      var parts = L.c.split(", ");
+      var person = parts.shift();
+      var title = parts.join(", ");
+      return '<div class="lcard" id="row'+ix+'">'
+        + '<div class="lc-top">'
+          + '<div class="lc-id">'
+            + '<h4 class="lc-name">'+L.n
+              + '<span class="badge '+(L.plp?'plp':'std')+'">'
+              + (L.plp?'PLP · delegated authority':'Standard · SBA pre-review')+'</span></h4>'
+            + '<div class="lc-contact">'+person+(title?' &middot; '+title:'')
+              + '<br><span class="r2">'+L.a+'</span>'
+              + '<br><span class="r2">'+L.p+' &middot; '+L.e+'</span></div>'
+          + '</div>'
+          + '<button class="pick" data-ix="'+ix+'">Select</button>'
+        + '</div>'
+        + '<div class="lc-stats">'
+          + '<div class="st"><span class="k">Rate</span><span class="v">'+L.rate.toFixed(2)+'%</span>'
+            + '<span class="n">Prime + '+L.spread.toFixed(2)+'%</span></div>'
+          + '<div class="st"><span class="k">Est. fees</span><span class="v">'+usd(L.fees)+'</span>'
+            + '<span class="n">'+L.feePct.toFixed(1)+'% of loan</span></div>'
+          + '<div class="st"><span class="k">Monthly P&amp;I</span><span class="v">'+usd(L.mo)+'</span>'
+            + '<span class="n">'+TERM+'-yr amortization</span></div>'
+          + '<div class="st"><span class="k">Term sheet</span><span class="v">'+L.ts+' days</span>'
+            + '<span class="n">median, business days</span></div>'
+          + '<div class="st"><span class="k">LOI to close</span><span class="v">'+L.cl+' days</span>'
+            + '<span class="n">median of '+L.n+' closings</span></div>'
+        + '</div>'
+      + '</div>';
     }).join("");
 
     Array.prototype.forEach.call($("lenderBody").querySelectorAll(".pick"), function(b){
@@ -520,7 +546,7 @@ fieldset{border:0;padding:0;margin:0 0 28px;}
         Array.prototype.forEach.call($("lenderBody").querySelectorAll(".pick"), function(x){
           x.classList.remove("on"); x.textContent = "Select";
         });
-        Array.prototype.forEach.call($("lenderBody").querySelectorAll("tr"), function(x){ x.classList.remove("sel"); });
+        Array.prototype.forEach.call($("lenderBody").querySelectorAll(".lcard"), function(x){ x.classList.remove("sel"); });
         b.classList.add("on"); b.textContent = "Selected";
         $("row"+ix).classList.add("sel");
         $("go3").disabled = false;

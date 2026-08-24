@@ -7,188 +7,171 @@
 <meta name="description" content="Convert your capital position into a reachable deal size, the cash flow it must produce, and the multiple you can pay.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --paper:#FBFBF9;
-  --field:#FFFFFF;
-  --ink:#14181C;
-  --ink-2:#525A61;
-  --ink-3:#8A9199;
-  --rule:#DCDDD8;
-  --rule-mid:#B8BAB4;
-  --rule-strong:#2A3036;
-  --gap:#8C3A2B;
-  --gap-soft:#F2E4E0;
-  --clear:#2E5E4E;
-  --clear-soft:#E2ECE7;
-  --caution:#8A6520;
-  --caution-soft:#F5EDDD;
-  --band:#E8EAE5;
-
-  --display:"Instrument Serif",Georgia,serif;
-  --ui:"Archivo",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --page:#DDEBF6; --surface:#FFFFFF; --surface-2:#F5FAFD;
+  --paper:#FFFFFF; --field:#FFFFFF;
+  --ink:#10202E; --ink-2:#47606F; --ink-3:#7C93A3;
+  --rule:#E1EAF1; --rule-mid:#BACBD8; --rule-strong:#1B3B52;
+  --gap:#A33A2B; --gap-soft:#FAEAE7;
+  --clear:#1F6B54; --clear-soft:#E4F1EC;
+  --caution:#8A6520; --caution-soft:#F8F0DF;
+  --demo:#6B3E8C; --demo-soft:#F1EAF6;
+  --band:#E6EEF4;
+  --display:"Public Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --ui:"Public Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --shadow:0 1px 2px rgba(16,32,46,.05),0 4px 14px rgba(16,32,46,.06);
 }
 
 *{box-sizing:border-box;}
 html{-webkit-text-size-adjust:100%;}
 body{
-  margin:0;background:var(--paper);color:var(--ink);
-  font-family:var(--ui);font-size:15px;line-height:1.5;
+  margin:0;background:var(--page);color:var(--ink);
+  font-family:var(--ui);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;
   font-variant-numeric:tabular-nums;
 }
 :focus-visible{outline:2px solid var(--rule-strong);outline-offset:2px;}
 
 /* ---------- masthead ---------- */
-.masthead{
-  border-bottom:1.5px solid var(--rule-strong);
-  padding:26px 28px 18px;
-  display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;
-}
-.masthead h1{
-  font-family:var(--display);font-weight:400;font-size:31px;line-height:1.05;
-  margin:0 0 5px;letter-spacing:-.01em;
-}
+.masthead{padding:26px 26px 20px;display:flex;justify-content:space-between;align-items:flex-end;gap:22px;flex-wrap:wrap;max-width:1320px;margin:0 auto;}
+.masthead h1{font-size:26px;font-weight:700;line-height:1.15;margin:0 0 6px;letter-spacing:-.022em;}
 .masthead p{margin:0;color:var(--ink-2);font-size:13.5px;max-width:56ch;}
-.stamp{
-  font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;
-  color:var(--ink-3);border:1px solid var(--rule-mid);padding:5px 9px;white-space:nowrap;
-}
+.stamp{font-size:11.5px;font-weight:600;color:var(--ink-2);background:var(--surface);border:1px solid var(--rule-mid);padding:7px 12px;border-radius:6px;white-space:nowrap;}
 
 /* ---------- layout ---------- */
-.wrap{display:grid;grid-template-columns:minmax(0,360px) minmax(0,1fr);gap:0;align-items:start;}
-.worksheet{
-  padding:24px 28px 60px;border-right:1px solid var(--rule);
-  position:sticky;top:0;max-height:100vh;overflow-y:auto;
-}
-.summary{padding:28px 32px 72px;min-width:0;}
+.wrap{display:grid;grid-template-columns:minmax(0,352px) minmax(0,1fr);gap:20px;align-items:start;max-width:1320px;margin:0 auto;padding:0 26px 60px;}
+.card{background:var(--surface);border-radius:10px;box-shadow:var(--shadow);}
+.worksheet{padding:22px 22px 26px;position:sticky;top:16px;max-height:calc(100vh - 32px);overflow-y:auto;}
+.summary{padding:28px 30px 34px;min-width:0;}
 
-@media (max-width:900px){
-  .wrap{grid-template-columns:1fr;}
-  .worksheet{position:static;max-height:none;border-right:0;border-bottom:1px solid var(--rule);padding-bottom:32px;}
-  .summary{padding:24px 20px 60px;}
-  .masthead{padding:20px;}
-  .masthead h1{font-size:26px;}
+@media (max-width:960px){
+  .wrap{grid-template-columns:1fr;padding:0 16px 48px;}
+  .worksheet{position:static;max-height:none;}
+  .summary{padding:22px 18px 28px;}
+  .masthead{padding:20px 16px 16px;}
+  .masthead h1{font-size:22px;}
 }
 
 /* ---------- worksheet ---------- */
 .wsec{margin-bottom:24px;}
-.wsec > legend, .eyebrow{
-  font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
-  color:var(--ink-3);padding:0;margin:0 0 10px;
+.wsec > legend, .eyebrow, fieldset > legend{
+  font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--ink-3);padding:0;margin:0 0 12px;
 }
 fieldset{border:0;padding:0;margin:0 0 24px;}
-.row{display:flex;align-items:baseline;gap:10px;margin-bottom:9px;}
-.row label{flex:1;font-size:13px;color:var(--ink-2);line-height:1.3;}
-.row .hint{display:block;color:var(--ink-3);font-size:11px;margin-top:1px;}
+.row{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.row label{flex:1;font-size:13.5px;color:var(--ink-2);line-height:1.35;}
+.row .hint{display:block;color:var(--ink-3);font-size:11.5px;margin-top:2px;line-height:1.35;}
 input[type=text],input[type=number],select{
-  font-family:var(--mono);font-size:13px;color:var(--ink);
-  background:var(--field);border:1px solid var(--rule-mid);border-radius:0;
-  padding:6px 8px;width:118px;text-align:right;
+  font-family:var(--mono);font-size:13.5px;color:var(--ink);
+  background:var(--surface);border:1px solid var(--rule-mid);border-radius:6px;
+  padding:8px 10px;width:126px;text-align:right;
 }
-select{width:150px;text-align:left;}
-input[type=text].wide{width:100%;text-align:left;}
+select{width:152px;text-align:left;font-family:var(--ui);}
+input[type=text].wide{width:100%;text-align:left;font-family:var(--ui);}
 input:hover,select:hover{border-color:var(--ink-3);}
+input:focus{border-color:var(--rule-strong);}
+input.want{border-color:var(--rule-strong);background:#F4F9FE;box-shadow:0 0 0 3px rgba(27,59,82,.08);}
 .togglerow{display:flex;align-items:flex-start;gap:8px;margin:10px 0 4px;}
 .togglerow input{margin-top:3px;}
 .togglerow label{font-size:12.5px;color:var(--ink-2);line-height:1.35;}
-.reset{
-  font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
-  background:none;border:1px solid var(--rule-mid);padding:7px 11px;cursor:pointer;color:var(--ink-2);
-}
+.reset{font-size:12px;font-weight:600;background:none;border:1px solid var(--rule-mid);
+  border-radius:6px;padding:8px 13px;cursor:pointer;color:var(--ink-2);}
 .reset:hover{border-color:var(--ink);color:var(--ink);}
 
 /* ---------- summary document ---------- */
 .docmeta{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;
   border-bottom:1px solid var(--rule);padding-bottom:9px;margin-bottom:26px;}
-.docmeta h2{font-family:var(--display);font-weight:400;font-size:23px;margin:0;letter-spacing:-.01em;}
-.docmeta .who{font-family:var(--mono);font-size:11px;color:var(--ink-2);}
+.docmeta h2{font-size:20px;font-weight:700;margin:0;letter-spacing:-.018em;}
+.docmeta .who{font-size:12.5px;color:var(--ink-2);}
 
-.headline{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1.5px solid var(--rule-strong);
-  border-bottom:1px solid var(--rule);}
-.hl{padding:16px 18px 15px;border-right:1px solid var(--rule);}
-.hl:last-child{border-right:0;}
-.hl .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);
-  display:block;margin-bottom:7px;line-height:1.4;}
-.hl .v{font-family:var(--display);font-size:33px;line-height:1;letter-spacing:-.015em;display:block;}
-.hl .sub{font-size:11.5px;color:var(--ink-2);margin-top:6px;display:block;line-height:1.35;}
-@media (max-width:620px){
-  .headline{grid-template-columns:1fr;}
-  .hl{border-right:0;border-bottom:1px solid var(--rule);}
-  .hl:last-child{border-bottom:0;}
-}
+.headline{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.hl{background:var(--surface-2);border:1px solid var(--rule);border-radius:9px;padding:15px 17px 16px;}
+.hl .k{font-size:11px;font-weight:700;letter-spacing:.085em;text-transform:uppercase;color:var(--ink-3);
+  display:block;margin-bottom:9px;line-height:1.4;}
+.hl .v{font-family:var(--mono);font-size:29px;font-weight:500;line-height:1.05;
+  letter-spacing:-.028em;display:block;}
+.hl .sub{font-size:12px;color:var(--ink-2);margin-top:8px;display:block;line-height:1.4;}
+@media (max-width:700px){.headline{grid-template-columns:1fr;}}
+
+.empty{display:none;background:var(--surface-2);border:1px dashed var(--rule-mid);
+  border-radius:9px;padding:30px 26px;text-align:center;}
+.empty.on{display:block;}
+.empty h3{margin:0 0 7px;font-size:17px;font-weight:600;letter-spacing:-.014em;}
+.empty p{margin:0 auto;font-size:13.5px;color:var(--ink-2);max-width:52ch;line-height:1.55;}
 
 /* ---------- signature: multiple gauge ---------- */
-.gauge{margin:30px 0 8px;}
+.gauge{margin:28px 0 4px;}
+.gauge.off{display:none;}
 .gauge-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap;}
-.gauge-head h3{font-family:var(--ui);font-weight:600;font-size:13.5px;margin:0;letter-spacing:.01em;}
-.verdict{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;padding:4px 9px;}
+.gauge-head h3{font-size:14px;font-weight:600;margin:0;letter-spacing:-.008em;}
+.verdict{font-size:11px;font-weight:700;letter-spacing:.075em;text-transform:uppercase;padding:5px 11px;border-radius:20px;}
 .verdict.clear{background:var(--clear-soft);color:var(--clear);}
 .verdict.tight{background:var(--caution-soft);color:var(--caution);}
 .verdict.gap{background:var(--gap-soft);color:var(--gap);}
 
-.scale{position:relative;height:74px;margin:0 4px;}
-.scale-band{position:absolute;top:24px;height:16px;background:var(--band);}
-.scale-line{position:absolute;top:32px;left:0;right:0;height:1px;background:var(--rule-mid);}
-.tick{position:absolute;top:24px;width:1px;height:16px;background:var(--rule-mid);}
-.tick-lab{position:absolute;top:46px;font-family:var(--mono);font-size:10px;color:var(--ink-3);transform:translateX(-50%);}
-.band-lab{position:absolute;top:5px;font-family:var(--mono);font-size:9.5px;letter-spacing:.09em;
+.scale{position:relative;height:80px;margin:0 6px;}
+.scale-band{position:absolute;top:28px;height:18px;background:var(--band);border-radius:3px;}
+.scale-line{position:absolute;top:37px;left:0;right:0;height:1px;background:var(--rule-mid);}
+.tick{position:absolute;top:28px;width:1px;height:18px;background:var(--rule-mid);}
+.tick-lab{position:absolute;top:51px;font-family:var(--mono);font-size:11px;color:var(--ink-3);transform:translateX(-50%);}
+.band-lab{position:absolute;top:6px;font-size:10.5px;font-weight:600;letter-spacing:.05em;
   text-transform:uppercase;color:var(--ink-3);transform:translateX(-50%);white-space:nowrap;}
-.marker{position:absolute;top:14px;height:36px;width:2px;background:var(--rule-strong);}
-.marker.soft{background:var(--ink-3);width:1px;top:19px;height:26px;}
-.marker-lab{position:absolute;top:-2px;font-family:var(--mono);font-size:11px;font-weight:700;
-  transform:translateX(-50%);white-space:nowrap;background:var(--paper);padding:0 4px;}
-.marker-lab.soft{font-weight:400;font-size:10px;color:var(--ink-2);top:52px;}
-.gauge-note{font-size:12.5px;color:var(--ink-2);margin:14px 0 0;line-height:1.5;max-width:66ch;}
+.marker{position:absolute;top:18px;height:38px;width:3px;background:var(--rule-strong);border-radius:2px;}
+.marker.soft{background:var(--ink-3);width:2px;top:23px;height:28px;}
+.marker-lab{position:absolute;top:-2px;font-family:var(--mono);font-size:12px;font-weight:500;
+  transform:translateX(-50%);white-space:nowrap;background:var(--surface);padding:0 5px;color:var(--ink);}
+.marker-lab.soft{font-weight:400;font-size:10.5px;color:var(--ink-2);top:57px;}
+.gauge-note{font-size:13.5px;color:var(--ink-2);margin:16px 0 0;line-height:1.6;max-width:70ch;}
 .gauge-note strong{color:var(--ink);font-weight:600;}
 
 /* ---------- tables ---------- */
 .block{margin-top:32px;}
-.block > h3{font-family:var(--ui);font-weight:600;font-size:13.5px;margin:0 0 11px;letter-spacing:.01em;}
+.block > h3{font-size:14px;font-weight:600;margin:0 0 12px;letter-spacing:-.008em;}
 table{width:100%;border-collapse:collapse;font-size:13px;}
-th{
-  font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);
-  text-align:right;font-weight:400;padding:0 0 7px;border-bottom:1px solid var(--rule-mid);
-}
+th{font-size:10.5px;font-weight:700;letter-spacing:.085em;text-transform:uppercase;color:var(--ink-3);
+  text-align:right;padding:0 0 9px;border-bottom:1px solid var(--rule-mid);}
 th:first-child{text-align:left;}
-td{padding:8px 0;border-bottom:1px solid var(--rule);text-align:right;font-family:var(--mono);font-size:12.5px;}
-td:first-child{text-align:left;font-family:var(--ui);font-size:13px;color:var(--ink-2);}
-tr.total td{border-bottom:1.5px solid var(--rule-strong);border-top:1px solid var(--rule-mid);font-weight:700;color:var(--ink);}
+td{padding:9px 0;border-bottom:1px solid var(--rule);text-align:right;font-family:var(--mono);font-size:13px;}
+td:first-child{text-align:left;font-family:var(--ui);font-size:13.5px;color:var(--ink-2);}
+tr.total td{border-bottom:2px solid var(--rule-strong);border-top:1px solid var(--rule-mid);font-weight:500;color:var(--ink);}
 tr.total td:first-child{font-weight:600;color:var(--ink);}
 td.neg{color:var(--gap);}
 
-.two{display:grid;grid-template-columns:1fr 1fr;gap:30px;}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:32px;}
 @media (max-width:760px){.two{grid-template-columns:1fr;gap:26px;}}
 
-.notice{
-  border-left:2px solid var(--gap);background:var(--gap-soft);padding:13px 15px;margin-top:26px;
-  font-size:13px;line-height:1.5;color:var(--ink);
-}
+.notice{border-left:3px solid var(--gap);background:var(--gap-soft);padding:14px 16px;margin-top:24px;
+  font-size:13.5px;line-height:1.55;color:var(--ink);border-radius:0 7px 7px 0;}
 .notice .eyebrow{color:var(--gap);margin-bottom:5px;}
 
-.assumptions{font-family:var(--mono);font-size:11.5px;color:var(--ink-2);line-height:1.75;}
+.assumptions{font-size:12.5px;color:var(--ink-2);line-height:1.9;}
 .assumptions span{white-space:nowrap;}
-.assumptions i{font-style:normal;color:var(--ink-3);}
+.assumptions i{font-style:normal;color:var(--ink-3);font-weight:600;}
 
 .disclaimer{
-  margin-top:34px;padding-top:12px;border-top:1px solid var(--rule);
-  font-size:11.5px;color:var(--ink-3);line-height:1.55;max-width:78ch;
+  margin-top:30px;padding-top:14px;border-top:1px solid var(--rule);
+  font-size:12px;color:var(--ink-3);line-height:1.6;max-width:80ch;
 }
 
 .actions{margin-top:26px;display:flex;gap:10px;flex-wrap:wrap;}
-.btn{
-  font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
-  padding:10px 16px;border:1px solid var(--rule-strong);background:var(--rule-strong);color:var(--paper);
-  cursor:pointer;border-radius:0;
-}
-.btn.ghost{background:none;color:var(--ink);}
-.btn:hover{opacity:.86;}
+.btn{font-size:13px;font-weight:600;padding:10px 17px;border:1px solid var(--rule-strong);
+  background:var(--rule-strong);color:#fff;cursor:pointer;border-radius:7px;text-decoration:none;
+  display:inline-block;line-height:1.3;font-family:var(--ui);}
+.btn.ghost{background:var(--surface);color:var(--ink);border-color:var(--rule-mid);}
+.btn:not(.disabled):not(:disabled):hover{opacity:.9;}
+.btn.disabled,.btn:disabled{opacity:.4;cursor:not-allowed;pointer-events:none;}
 
 /* ---------- print ---------- */
 @media print{
   @page{margin:14mm;}
-  body{background:#fff;font-size:10.5pt;}
+  html,body{background:#fff !important;font-size:10.5pt;}
+  .card{box-shadow:none;border-radius:0;}
+  .hl{background:#fff;}
+  .empty.on{display:none !important;}
+  .vhead,.vcaveat{background:#fff;}
   .masthead,.worksheet,.actions,.print-hide{display:none !important;}
   .wrap{display:block;}
   .summary{padding:0;}
@@ -208,33 +191,31 @@ td.neg{color:var(--gap);}
 /* ---------- verified state ---------- */
 .demobar{
   display:none;background:var(--demo);color:#fff;
-  font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
-  padding:7px 20px;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  font-size:12px;font-weight:500;padding:9px 22px;justify-content:space-between;gap:16px;flex-wrap:wrap;
 }
 .demobar.on{display:flex;}
-.demobar span:last-child{opacity:.85;letter-spacing:.08em;text-transform:none;font-size:10.5px;}
+.demobar b{font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:11px;}
+.demobar span:last-child{opacity:.9;font-weight:400;}
 
-.vblock{display:none;border-top:1.5px solid var(--rule-strong);margin-top:30px;}
+.vblock{display:none;margin-top:30px;border:1px solid var(--rule-mid);border-radius:9px;overflow:hidden;}
 .vblock.on{display:block;}
-.vhead{display:flex;justify-content:space-between;align-items:baseline;gap:14px;
-  flex-wrap:wrap;padding:13px 0 11px;border-bottom:1px solid var(--rule);}
-.vhead h3{font-family:var(--ui);font-weight:600;font-size:13.5px;margin:0;}
-.vstatus{font-family:var(--mono);font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;
-  padding:5px 10px;background:var(--clear-soft);color:var(--clear);}
+.vhead{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;
+  padding:13px 18px;background:var(--surface-2);border-bottom:1px solid var(--rule);}
+.vhead h3{font-size:14px;font-weight:600;margin:0;}
+.vstatus{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  padding:5px 11px;border-radius:20px;background:var(--clear-soft);color:var(--clear);}
 .vgrid{display:grid;grid-template-columns:1fr 1fr;gap:0;}
-.vcol{padding:14px 0;}
-.vcol:first-child{padding-right:26px;border-right:1px solid var(--rule);}
-.vcol:last-child{padding-left:26px;}
-@media (max-width:700px){
+.vcol{padding:16px 18px;}
+.vcol:first-child{border-right:1px solid var(--rule);}
+@media (max-width:720px){
   .vgrid{grid-template-columns:1fr;}
-  .vcol:first-child{padding-right:0;border-right:0;border-bottom:1px solid var(--rule);}
-  .vcol:last-child{padding-left:0;}
+  .vcol:first-child{border-right:0;border-bottom:1px solid var(--rule);}
 }
-.vrow{display:flex;justify-content:space-between;gap:14px;padding:5px 0;font-family:var(--mono);font-size:12px;}
-.vrow span:first-child{font-family:var(--ui);font-size:12.5px;color:var(--ink-2);flex:none;}
-.vrow span:last-child{text-align:right;word-break:break-word;}
-.vcaveat{font-size:11.5px;color:var(--ink-2);line-height:1.55;padding:11px 0 0;
-  border-top:1px solid var(--rule);margin-top:4px;}
+.vrow{display:flex;justify-content:space-between;gap:16px;padding:6px 0;font-size:12.5px;}
+.vrow span:first-child{color:var(--ink-3);flex:none;font-weight:500;}
+.vrow span:last-child{text-align:right;word-break:break-word;font-family:var(--mono);font-size:12px;}
+.vcaveat{font-size:12px;color:var(--ink-2);line-height:1.6;padding:13px 18px;
+  border-top:1px solid var(--rule);background:var(--surface-2);}
 
 .watermark{display:none;}
 
@@ -255,12 +236,12 @@ td.neg{color:var(--gap);}
 <body>
 
 <div class="demobar" id="demobar">
-  <span>Demo — simulated</span>
+  <b>Demo — simulated</b>
   <span>Lender content below is simulated. No credit inquiry occurred. Institutions shown are fictional.</span>
 </div>
 <div class="watermark" id="watermark">DEMO — SIMULATED</div>
 
-<header class="masthead">
+<header class="masthead print-hide">
   <div>
     <h1>Acquisition Readiness Summary</h1>
     <p>Turns a buyer's capital position into a reachable deal size, the cash flow that deal must produce, and the multiple they can afford to pay. Built for a broker to read in thirty seconds.</p>
@@ -271,27 +252,27 @@ td.neg{color:var(--gap);}
 <div class="wrap">
 
   <!-- ============ WORKSHEET ============ -->
-  <form class="worksheet" id="ws" autocomplete="off">
-    <fieldset class="wsec">
+  <form class="worksheet card print-hide" id="ws" autocomplete="off">
+    <fieldset >
       <legend>Buyer</legend>
       <div class="row"><input type="text" class="wide" id="buyerName" placeholder="Name (appears on the summary)"></div>
       <div class="row"><input type="text" class="wide" id="buyerMarket" placeholder="Target market, e.g. Denver metro"></div>
     </fieldset>
 
-    <fieldset class="wsec">
+    <fieldset >
       <legend>Capital</legend>
-      <div class="row"><label for="liquid">Liquid capital<span class="hint">Cash and taxable brokerage</span></label><input type="number" id="liquid" value="400000" step="10000"></div>
+      <div class="row"><label for="liquid">Liquid capital<span class="hint">Cash and taxable brokerage. Everything else follows from this.</span></label><input type="number" id="liquid" class="want" placeholder="0" step="10000" min="0"></div>
       <div class="row"><label for="reserve">Broken-deal reserve<span class="hint">Diligence spend on deals that die</span></label><input type="number" id="reserve" value="50000" step="5000"></div>
     </fieldset>
 
-    <fieldset class="wsec">
+    <fieldset >
       <legend>Search runway</legend>
       <div class="row"><label for="expenses">Monthly household expenses</label><input type="number" id="expenses" value="9000" step="500"></div>
       <div class="row"><label for="otherIncome">Other monthly income<span class="hint">Spouse, consulting, rental</span></label><input type="number" id="otherIncome" value="4000" step="500"></div>
       <div class="row"><label for="months">Expected search (months)</label><input type="number" id="months" value="12" step="1" min="1" max="36"></div>
     </fieldset>
 
-    <fieldset class="wsec">
+    <fieldset >
       <legend>Deal assumptions</legend>
       <div class="row"><label for="salary">Owner salary you need<span class="hint">Annual, post-close</span></label><input type="number" id="salary" value="150000" step="10000"></div>
       <div class="row"><label for="rate">Interest rate (%)<span class="hint">Prime 6.75% + spread; cap is Prime+3.0%</span></label><input type="number" id="rate" value="9.25" step="0.25"></div>
@@ -303,7 +284,7 @@ td.neg{color:var(--gap);}
       </div>
     </fieldset>
 
-    <fieldset class="wsec">
+    <fieldset >
       <legend>Operating experience</legend>
       <div class="row"><label for="sector">Target sector</label><input type="text" class="wide" id="sector" placeholder="e.g. Commercial HVAC"></div>
       <div class="row"><label for="expYears">Years in that sector</label><input type="number" id="expYears" value="0" step="1" min="0"></div>
@@ -320,13 +301,18 @@ td.neg{color:var(--gap);}
   </form>
 
   <!-- ============ SUMMARY ============ -->
-  <main class="summary">
+  <main class="summary card">
     <div class="docmeta">
       <h2 id="docTitle">Buyer readiness</h2>
       <div class="who"><span id="metaMarket"></span><span id="metaDate"></span></div>
     </div>
 
-    <section class="headline">
+    <div class="empty on" id="empty">
+      <h3>Enter liquid capital to begin</h3>
+      <p>Reachable deal size, required cash flow, and the multiple you can pay all derive from the capital available for an equity injection. Enter that figure in the worksheet.</p>
+    </div>
+
+    <section class="headline" id="headline" style="display:none">
       <div class="hl">
         <span class="k">Required SDE</span>
         <span class="v" id="reqSDE">—</span>
@@ -345,7 +331,7 @@ td.neg{color:var(--gap);}
     </section>
 
     <!-- signature element -->
-    <section class="gauge">
+    <section class="gauge off" id="gauge">
       <div class="gauge-head">
         <h3>Where that multiple sits against the market</h3>
         <span class="verdict" id="verdict">—</span>
@@ -359,6 +345,7 @@ td.neg{color:var(--gap);}
       <span id="noticeBody"></span>
     </div>
 
+    <div id="detail" style="display:none">
     <div class="two">
       <section class="block">
         <h3>Capital available for injection</h3>
@@ -403,10 +390,12 @@ td.neg{color:var(--gap);}
       </table>
     </section>
 
-    <section class="block">
+    <section class="block" id="assumpBlock" style="display:none">
       <h3>Assumptions this rests on</h3>
       <p class="assumptions" id="assumptions"></p>
     </section>
+
+    </div>
 
     <section class="vblock" id="vblock">
       <div class="vhead">
@@ -439,10 +428,10 @@ td.neg{color:var(--gap);}
       relying on it.
     </p>
 
-    <div class="actions">
-      <button class="btn" id="printBtn">Print / save as PDF</button>
-      <button class="btn ghost" id="copyBtn">Copy figures</button>
-      <a class="btn ghost" id="verifyLink" href="verify.html" style="text-decoration:none;display:inline-block">Lender verification (demo)</a>
+    <div class="actions print-hide">
+      <button class="btn" id="printBtn" disabled>Print / save as PDF</button>
+      <button class="btn ghost" id="copyBtn" disabled>Copy figures</button>
+      <a class="btn ghost disabled" id="verifyLink" href="verify.html">Lender verification (demo)</a>
       <button class="btn ghost" id="clearBtn" style="display:none">Clear lender data</button>
     </div>
   </main>
@@ -453,7 +442,7 @@ td.neg{color:var(--gap);}
   "use strict";
 
   var DEFAULTS = {
-    buyerName:"", buyerMarket:"", liquid:400000, reserve:50000, expenses:9000,
+    buyerName:"", buyerMarket:"", liquid:"", reserve:50000, expenses:9000,
     otherIncome:4000, months:12, salary:150000, rate:9.25, term:10, closing:2.5,
     standby:false, sector:"", expYears:0, pnl:"partial", headcount:0, credit:"700–759"
   };
@@ -488,6 +477,7 @@ td.neg{color:var(--gap);}
       return isFinite(v) ? v : fallback;
     };
     return {
+      liquidRaw: $("liquid").value.trim(),
       buyerName: $("buyerName").value.trim(),
       buyerMarket: $("buyerMarket").value.trim(),
       liquid: Math.max(0, num("liquid",0)),
@@ -574,13 +564,47 @@ td.neg{color:var(--gap);}
     return {cls:"clear", text:"Competitive", key:"above"};
   }
 
+  function setEmpty(on){
+    $("empty").classList.toggle("on", on);
+    $("headline").style.display = on ? "none" : "";
+    $("gauge").classList.toggle("off", on);
+    $("detail").style.display = on ? "none" : "";
+    $("assumpBlock").style.display = on ? "none" : "";
+    if(on) $("notice").style.display = "none";
+    $("printBtn").disabled = on;
+    $("copyBtn").disabled = on;
+    $("verifyLink").classList.toggle("disabled", on);
+  }
+
+  var KEYS = Object.keys(DEFAULTS);
+  function persistInputs(){
+    var o = {};
+    KEYS.forEach(function(k){
+      var el = $(k); if(!el) return;
+      o[k] = el.type === "checkbox" ? el.checked : el.value;
+    });
+    try { sessionStorage.setItem("ar_inputs", JSON.stringify(o)); } catch(e){}
+  }
+  function restoreInputs(){
+    var raw; try { raw = sessionStorage.getItem("ar_inputs"); } catch(e){ return; }
+    if(!raw) return;
+    var o; try { o = JSON.parse(raw); } catch(e){ return; }
+    KEYS.forEach(function(k){
+      if(!(k in o)) return;
+      var el = $(k); if(!el) return;
+      if(el.type === "checkbox") el.checked = !!o[k]; else el.value = o[k];
+    });
+  }
+
   function render(){
     var i = readInputs(), c = compute(i);
 
-    // meta
     $("docTitle").textContent = i.buyerName ? i.buyerName : "Buyer readiness";
-    $("metaMarket").textContent = i.buyerMarket ? i.buyerMarket + "  ·  " : "";
+    $("metaMarket").textContent = i.buyerMarket ? i.buyerMarket + "  \u00B7  " : "";
     $("metaDate").textContent = new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"});
+
+    if(i.liquidRaw === "" || i.liquid <= 0){ setEmpty(true); persistInputs(); return; }
+    setEmpty(false);
 
     if(!c.viable){
       $("reqSDE").textContent = "—";
@@ -677,8 +701,8 @@ td.neg{color:var(--gap);}
       : i.months + " months planned, income covers expenses";
 
     // keep the demo link carrying the current loan amount
-    var vl = $("verifyLink");
-    if(vl) vl.setAttribute("href", "verify.html?amount=" + Math.round(c.loan));
+    $("verifyLink").setAttribute("href", "verify.html?amount=" + Math.round(c.loan));
+    persistInputs();
 
     // assumptions
     $("assumptions").innerHTML =
@@ -704,6 +728,7 @@ td.neg{color:var(--gap);}
       if(el.type === "checkbox") el.checked = DEFAULTS[k];
       else el.value = DEFAULTS[k];
     });
+    try { sessionStorage.removeItem("ar_inputs"); } catch(e){}
     render();
   });
 
@@ -788,8 +813,8 @@ td.neg{color:var(--gap);}
       setTimeout(function(){ window.print(); }, 700);
     }
   }
+  restoreInputs();
   hydrateVerified();
-
   render();
 })();
 </script>

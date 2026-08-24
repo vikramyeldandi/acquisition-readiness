@@ -13,7 +13,7 @@ in the browser.
 3. Source: **Deploy from a branch**. Branch: `main`, folder: `/ (root)`. Save.
 4. Live in a minute or two at `https://<username>.github.io/acquisition-readiness/`.
 
-No build step. No dependencies beyond a Google Fonts stylesheet.
+No build step. No dependencies beyond a Google Fonts stylesheet (Public Sans + IBM Plex Mono).
 
 ## Before showing anyone
 
@@ -48,3 +48,12 @@ watermark, because the lender terms on it are simulated.
 
 Handoff between pages uses `sessionStorage`: tab-scoped, cleared when the tab closes, never
 transmitted. Use "Clear lender data" on the summary to return to the clean state.
+
+## Behaviour notes
+
+- **Liquid capital starts empty.** Everything downstream derives from it, so the summary shows an
+  empty state until a figure is entered, and print/copy/verification stay disabled.
+- **Worksheet inputs persist** in `sessionStorage` so the round trip through the verification flow
+  doesn't clear them. Cleared when the tab closes or via Reset.
+- **Page background is baby blue; content sits on white surfaces.** Print forces white throughout —
+  no coloured PDFs.
