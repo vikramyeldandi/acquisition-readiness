@@ -127,25 +127,40 @@ input.want{border-color:var(--rule-strong);background:#F4F9FE;box-shadow:0 0 0 3
 /* ---------- signature: multiple gauge ---------- */
 .gauge{margin:28px 0 4px;}
 .gauge.off{display:none;}
-.gauge-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap;}
+.gauge-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:22px;flex-wrap:wrap;}
 .gauge-head h3{font-size:14px;font-weight:600;margin:0;letter-spacing:-.008em;}
 .verdict{font-size:11px;font-weight:700;letter-spacing:.075em;text-transform:uppercase;padding:5px 11px;border-radius:20px;}
 .verdict.clear{background:var(--clear-soft);color:var(--clear);}
 .verdict.tight{background:var(--caution-soft);color:var(--caution);}
 .verdict.gap{background:var(--gap-soft);color:var(--gap);}
 
-.scale{position:relative;height:80px;margin:0 6px;}
-.scale-band{position:absolute;top:28px;height:18px;background:var(--band);border-radius:3px;}
-.scale-line{position:absolute;top:37px;left:0;right:0;height:1px;background:var(--rule-mid);}
-.tick{position:absolute;top:28px;width:1px;height:18px;background:var(--rule-mid);}
-.tick-lab{position:absolute;top:51px;font-family:var(--mono);font-size:11px;color:var(--ink-3);transform:translateX(-50%);}
-.band-lab{position:absolute;top:6px;font-size:10.5px;font-weight:600;letter-spacing:.05em;
+.scale{position:relative;height:86px;margin:0 4px;}
+.scale-band{position:absolute;top:30px;height:20px;background:var(--band);border-radius:3px;}
+.scale-line{position:absolute;top:40px;left:0;right:0;height:1px;background:var(--rule-mid);}
+.tick{position:absolute;top:34px;width:1px;height:12px;background:var(--rule-mid);}
+.tick.major{top:30px;height:20px;background:var(--ink-3);}
+.tick-lab{position:absolute;top:55px;font-family:var(--mono);font-size:11.5px;color:var(--ink-3);
+  transform:translateX(-50%);white-space:nowrap;}
+.band-lab{position:absolute;top:8px;font-size:10.5px;font-weight:600;letter-spacing:.05em;
   text-transform:uppercase;color:var(--ink-3);transform:translateX(-50%);white-space:nowrap;}
-.marker{position:absolute;top:18px;height:38px;width:3px;background:var(--rule-strong);border-radius:2px;}
-.marker.soft{background:var(--ink-3);width:2px;top:23px;height:28px;}
-.marker-lab{position:absolute;top:-2px;font-family:var(--mono);font-size:12px;font-weight:500;
+.marker{position:absolute;top:20px;height:40px;width:3px;background:var(--rule-strong);border-radius:2px;}
+.marker.soft{background:var(--ink-3);width:2px;top:25px;height:30px;}
+.marker.off{background:repeating-linear-gradient(var(--ink-3) 0 4px,transparent 4px 7px);}
+.marker.off.hi{background:repeating-linear-gradient(var(--rule-strong) 0 4px,transparent 4px 7px);}
+.marker-lab{position:absolute;top:0;font-family:var(--mono);font-size:14px;font-weight:600;
   transform:translateX(-50%);white-space:nowrap;background:var(--surface);padding:0 5px;color:var(--ink);}
-.marker-lab.soft{font-weight:400;font-size:10.5px;color:var(--ink-2);top:57px;}
+.marker-lab.soft{font-weight:400;font-size:11.5px;color:var(--ink-3);top:71px;
+  background:var(--surface);padding:0 5px;}
+.marker-lab.edge-l{transform:none;left:0 !important;padding-left:0;}
+.marker-lab.edge-r{transform:none;left:auto !important;right:0;padding-right:0;}
+.marker-lab .off-note{color:var(--ink-3);font-weight:400;font-size:11px;}
+.gauge-key{display:flex;gap:20px;flex-wrap:wrap;margin-top:6px;padding-top:11px;
+  border-top:1px solid var(--rule);}
+.gk{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-2);}
+.gk i{display:block;width:3px;height:14px;border-radius:2px;flex:none;}
+.gk.a i{background:var(--rule-strong);}
+.gk.b i{background:var(--ink-3);width:2px;height:12px;}
+.gk b{color:var(--ink);font-weight:600;font-family:var(--mono);font-size:12.5px;}
 .gauge-note{font-size:13.5px;color:var(--ink-2);margin:16px 0 0;line-height:1.6;max-width:70ch;}
 .gauge-note strong{color:var(--ink);font-weight:600;}
 
@@ -206,7 +221,9 @@ td.neg{color:var(--gap);}
   .gauge{margin:18px 0 4px;}
   .block{margin-top:18px;page-break-inside:avoid;}
   .notice{page-break-inside:avoid;}
-  .marker-lab{background:#fff;}
+  .marker-lab,.marker-lab.soft{background:#fff;}
+  .gauge-key{page-break-inside:avoid;}
+  .scale{height:86px;}
   .disclaimer{margin-top:18px;}
   a{text-decoration:none;color:inherit;}
 }
@@ -378,6 +395,7 @@ td.neg{color:var(--gap);}
         <span class="verdict" id="verdict">—</span>
       </div>
       <div class="scale" id="scale"></div>
+      <div class="gauge-key" id="gaugeKey"></div>
       <p class="gauge-note" id="gaugeNote"></p>
     </section>
 
@@ -583,19 +601,38 @@ td.neg{color:var(--gap);}
     html += '<div class="scale-band" style="left:'+pos(BAND_LO)+'%;width:'+(pos(BAND_HI)-pos(BAND_LO))+'%"></div>';
     html += '<div class="band-lab" style="left:'+((pos(BAND_LO)+pos(BAND_HI))/2)+'%">Typical main street</div>';
     html += '<div class="scale-line"></div>';
+
+    // minor ticks every 0.5, labels only on whole numbers
     for(var t = SCALE_MIN; t <= SCALE_MAX + 0.01; t += 0.5){
-      html += '<div class="tick" style="left:'+pos(t)+'%"></div>';
-      html += '<div class="tick-lab" style="left:'+pos(t)+'%">'+t.toFixed(1)+'\u00D7</div>';
+      var whole = Math.abs(t - Math.round(t)) < 0.01;
+      html += '<div class="tick'+(whole ? ' major' : '')+'" style="left:'+pos(t)+'%"></div>';
+      if(whole){
+        html += '<div class="tick-lab" style="left:'+pos(t)+'%">'+t.toFixed(0)+'\u00D7</div>';
+      }
     }
-    if(c.viable && c.maxMult150 > 0){
-      html += '<div class="marker soft" style="left:'+pos(c.maxMult150)+'%"></div>';
-      html += '<div class="marker-lab soft" style="left:'+pos(c.maxMult150)+'%">'+mult(c.maxMult150)+' at 1.50\u00D7</div>';
+
+    function place(m, isSoft){
+      var p = pos(m);
+      var off = m < SCALE_MIN || m > SCALE_MAX;
+      var cls = isSoft ? "marker soft" : "marker";
+      if(off) cls += " off" + (isSoft ? "" : " hi");
+      var lab = isSoft ? "marker-lab soft" : "marker-lab";
+      if(p < 7) lab += " edge-l";
+      else if(p > 93) lab += " edge-r";
+      var txt = mult(m);
+      if(off) txt += ' <span class="off-note">' + (m > SCALE_MAX ? "above" : "below") + '</span>';
+      return '<div class="' + cls + '" style="left:' + p + '%"></div>'
+           + '<div class="' + lab + '" style="left:' + p + '%">' + txt + '</div>';
     }
-    if(c.viable && c.maxMult125 > 0){
-      html += '<div class="marker" style="left:'+pos(c.maxMult125)+'%"></div>';
-      html += '<div class="marker-lab" style="left:'+pos(c.maxMult125)+'%">'+mult(c.maxMult125)+'</div>';
-    }
+
+    if(c.viable && c.maxMult150 > 0) html += place(c.maxMult150, true);
+    if(c.viable && c.maxMult125 > 0) html += place(c.maxMult125, false);
+
     el.innerHTML = html;
+
+    $("gaugeKey").innerHTML =
+      '<span class="gk a"><i></i>Most you can pay at the <b>1.25\u00D7</b> coverage floor</span>'
+      + '<span class="gk b"><i></i>At the stricter <b>1.50\u00D7</b> lenders prefer</span>';
   }
 
   function verdictFor(m){
@@ -826,6 +863,7 @@ td.neg{color:var(--gap);}
 
   // wiring
   var form = $("ws");
+  window.addEventListener("resize", render);
   form.addEventListener("input", render);
   form.addEventListener("change", render);
 
