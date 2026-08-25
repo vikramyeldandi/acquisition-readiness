@@ -165,6 +165,13 @@ fieldset{border:0;padding:0;margin:0 0 28px;}
   display:block;line-height:1.2;}
 .st .n{font-size:11px;color:var(--ink-3);display:block;margin-top:4px;line-height:1.35;}
 .st .n.thin{color:var(--caution);font-weight:600;}
+.lc-basis{margin:11px 0 0;font-size:12.5px;color:var(--ink-3);line-height:1.5;
+  display:flex;gap:7px;align-items:flex-start;}
+.lc-basis.thin{color:var(--caution);}
+.lc-basis .dot{width:6px;height:6px;border-radius:50%;background:var(--rule-mid);
+  flex:none;margin-top:6px;}
+.lc-basis.thin .dot{background:var(--caution);}
+.lc-basis b{font-weight:600;}
 @media (max-width:900px){.lc-stats{grid-template-columns:repeat(3,1fr);}}
 @media (max-width:560px){.lc-stats{grid-template-columns:repeat(2,1fr);}}
 
@@ -303,9 +310,9 @@ fieldset{border:0;padding:0;margin:0 0 28px;}
     <p class="eyebrow" style="margin-bottom:9px">How to read these</p>
     <ul>
       <li><b>Approves in-house</b> means the SBA has given that bank authority to decide on its own. Their yes is final. <b>Needs SBA sign-off</b> means a second review after the bank approves &mdash; typically two to four more weeks, and a gate that can reopen questions.</li>
-      <li><b>Term sheet</b> is how long until you have written terms in hand. <b>LOI to close</b> is the whole run from signed letter of intent to funding.</li>
+      <li><b>Time to term sheet</b> is how long until you have written terms in hand. <b>Time to funding</b> is the whole run from signed letter of intent to money in escrow. Both are in days.</li>
       <li><b>Watch this against your exclusivity window.</b> Most LOIs give 60 to 90 days. A lender whose median close exceeds your window means asking the seller for an extension &mdash; after your diligence money is already spent.</li>
-      <li><b>Closings last year</b> tells you how much to trust the timing. A lender doing three deals a quarter has a thin record; one doing ten a month does this every day.</li>
+      <li>The line at the bottom of each card is <b>not a timing figure</b> — it is how many loans those medians were calculated from. A bank doing three deals a quarter has a thin record; one doing ten a month does this every day.</li>
     </ul>
   </div>
 
@@ -556,15 +563,16 @@ fieldset{border:0;padding:0;margin:0 0 28px;}
             + '<span class="n">'+L.feePct.toFixed(1)+'% of loan</span></div>'
           + '<div class="st"><span class="k">Monthly P&amp;I</span><span class="v">'+usd(L.mo)+'</span>'
             + '<span class="n">'+TERM+'-yr amortization</span></div>'
-          + '<div class="st"><span class="k">Term sheet</span><span class="v">'+L.ts+' days</span>'
-            + '<span class="n">median, business days</span></div>'
-          + '<div class="st"><span class="k">LOI to close</span><span class="v">'+L.cl+' days</span>'
-            + '<span class="n'+(L.n<25?' thin':'')+'">'
-              + (L.n<25
-                  ? 'only '+L.n+' closings last year \u2014 treat as approximate'
-                  : 'from '+L.n+' closings last year')
-              + '</span></div>'
+          + '<div class="st"><span class="k">Time to term sheet</span><span class="v">'+L.ts+' days</span>'
+            + '<span class="n">until written terms in hand</span></div>'
+          + '<div class="st"><span class="k">Time to funding</span><span class="v">'+L.cl+' days</span>'
+            + '<span class="n">from signed LOI to money</span></div>'
         + '</div>'
+        + '<p class="lc-basis'+(L.n<25?' thin':'')+'"><span class="dot"></span><span>'
+          + (L.n<25
+              ? 'Both timing figures are medians drawn from only <b>'+L.n+' loans</b> this bank closed in the last 12 months. That is a thin record \u2014 treat the days above as rough.'
+              : 'Both timing figures are medians drawn from the <b>'+L.n+' loans</b> this bank closed in the last 12 months.')
+          + '</span></p>'
       + '</div>';
     }).join("");
 
