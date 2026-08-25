@@ -102,6 +102,28 @@ input.want{border-color:var(--rule-strong);background:#F4F9FE;box-shadow:0 0 0 3
 .empty h3{margin:0 0 7px;font-size:17px;font-weight:600;letter-spacing:-.014em;}
 .empty p{margin:0 auto;font-size:13.5px;color:var(--ink-2);max-width:52ch;line-height:1.55;}
 
+.short{display:none;margin-top:16px;border:1px solid var(--caution);background:var(--caution-soft);
+  border-radius:9px;overflow:hidden;}
+.short.on{display:block;}
+.short-head{padding:14px 18px 13px;border-bottom:1px solid rgba(138,101,32,.22);}
+.short-head h3{margin:0 0 5px;font-size:15.5px;font-weight:700;letter-spacing:-.014em;color:var(--caution);}
+.short-head p{margin:0;font-size:13.5px;color:var(--ink-2);line-height:1.55;max-width:74ch;}
+.short-math{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(138,101,32,.18);}
+.sm{background:var(--caution-soft);padding:12px 16px;}
+.sm .k{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--ink-3);display:block;margin-bottom:5px;}
+.sm .v{font-family:var(--mono);font-size:16px;font-weight:500;letter-spacing:-.02em;display:block;}
+.sm.hi .v{color:var(--caution);}
+.sm .n{font-size:11px;color:var(--ink-3);display:block;margin-top:4px;line-height:1.35;}
+@media (max-width:760px){.short-math{grid-template-columns:repeat(2,1fr);}}
+.short-fix{padding:14px 18px 16px;background:var(--surface);border-top:1px solid rgba(138,101,32,.22);}
+.short-fix .eyebrow{margin-bottom:9px;}
+.fixlist{margin:0;padding:0;list-style:none;display:grid;gap:8px;}
+.fixlist li{font-size:13.5px;color:var(--ink-2);line-height:1.5;padding-left:17px;position:relative;}
+.fixlist li:before{content:"";position:absolute;left:0;top:8px;width:6px;height:6px;
+  border-radius:50%;background:var(--caution);}
+.fixlist b{color:var(--ink);font-weight:600;}
+
 /* ---------- signature: multiple gauge ---------- */
 .gauge{margin:28px 0 4px;}
 .gauge.off{display:none;}
@@ -171,6 +193,8 @@ td.neg{color:var(--gap);}
   .card{box-shadow:none;border-radius:0;}
   .hl{background:#fff;}
   .empty.on{display:none !important;}
+  .short.on{display:block !important;page-break-inside:avoid;}
+  .short-fix{background:#fff;}
   .vhead,.vcaveat{background:#fff;}
   .masthead,.worksheet,.actions,.print-hide{display:none !important;}
   .wrap{display:block;}
@@ -331,6 +355,23 @@ td.neg{color:var(--gap);}
     </section>
 
     <!-- signature element -->
+    <section class="short" id="short">
+      <div class="short-head">
+        <h3 id="shortTitle">Short of the minimum to start</h3>
+        <p id="shortLede"></p>
+      </div>
+      <div class="short-math">
+        <div class="sm"><span class="k">Liquid capital</span><span class="v" id="smLiquid">—</span><span class="n">what you entered</span></div>
+        <div class="sm"><span class="k">Search runway</span><span class="v" id="smBurn">—</span><span class="n" id="smBurnNote">living costs during search</span></div>
+        <div class="sm"><span class="k">Broken-deal reserve</span><span class="v" id="smReserve">—</span><span class="n">diligence on deals that die</span></div>
+        <div class="sm hi"><span class="k">Shortfall</span><span class="v" id="smGap">—</span><span class="n" id="smGapNote">before any injection remains</span></div>
+      </div>
+      <div class="short-fix">
+        <p class="eyebrow">Ways to close the gap</p>
+        <ul class="fixlist" id="fixlist"></ul>
+      </div>
+    </section>
+
     <section class="gauge off" id="gauge">
       <div class="gauge-head">
         <h3>Where that multiple sits against the market</h3>
@@ -566,6 +607,7 @@ td.neg{color:var(--gap);}
 
   function setEmpty(on){
     $("empty").classList.toggle("on", on);
+    if(on) $("short").classList.remove("on");
     $("headline").style.display = on ? "none" : "";
     $("gauge").classList.toggle("off", on);
     $("detail").style.display = on ? "none" : "";
@@ -596,6 +638,71 @@ td.neg{color:var(--gap);}
     });
   }
 
+  function showShortfall(i, c){
+    var needed = c.burn + i.reserve;
+    var gap = needed - i.liquid;
+    var net = Math.max(0, i.expenses - i.otherIncome);
+
+    // hide the computed views, keep the shortfall panel
+    $("headline").style.display = "none";
+    $("gauge").classList.add("off");
+    $("detail").style.display = "none";
+    $("assumpBlock").style.display = "none";
+    $("notice").style.display = "none";
+    $("printBtn").disabled = true;
+    $("copyBtn").disabled = true;
+    $("verifyLink").classList.add("disabled");
+    $("short").classList.add("on");
+
+    $("shortLede").innerHTML = "Before any money can go toward a down payment, it has to cover you through the search "
+      + "and cover diligence on deals that fall through. Right now those two absorb everything you have, plus "
+      + "<strong>" + usd(gap) + "</strong> more. That is a solvable gap, and there are four levers.";
+
+    $("smLiquid").textContent = usd(i.liquid);
+    $("smBurn").textContent = usd(c.burn);
+    $("smBurnNote").textContent = usd(net) + "/mo over " + i.months + " months";
+    $("smReserve").textContent = usd(i.reserve);
+    $("smGap").textContent = usd(gap);
+    $("smGapNote").textContent = "you need " + usd(needed) + " to reach zero";
+
+    var fixes = [];
+
+    // 1. shorten the search
+    if(net > 0){
+      var affordable = Math.floor(Math.max(0, i.liquid - i.reserve) / net);
+      if(affordable >= 1 && affordable < i.months){
+        fixes.push("<b>Shorten the search to " + affordable + " months.</b> That is what your capital funds today, "
+          + "against the " + i.months + " you have planned. Most searches run longer, so treat this as a real constraint rather than a setting.");
+      } else if(affordable < 1){
+        fixes.push("<b>Reduce monthly burn.</b> At " + usd(net) + "/mo net, your capital does not fund a single month "
+          + "of search after the reserve. Cutting household costs or adding income during the search is the first lever.");
+      }
+    }
+
+    // 2. add income
+    var monthsNeeded = i.months;
+    if(monthsNeeded > 0){
+      var perMonth = Math.ceil(gap / monthsNeeded / 100) * 100;
+      fixes.push("<b>Add " + usd(perMonth) + "/month of income during the search.</b> Part-time consulting, a working spouse, "
+        + "or rental income all count. Over " + monthsNeeded + " months that closes the gap without touching your capital.");
+    }
+
+    // 3. reserve
+    if(i.reserve > 0){
+      var trimmed = Math.max(0, i.reserve - gap);
+      fixes.push("<b>Lower the broken-deal reserve to " + usd(trimmed) + ".</b> This is the riskiest lever. "
+        + "The average buyer signs around three LOIs before one closes, and dead-deal money is not financeable — "
+        + "spend it on deal one and you are out of the game before deal two.");
+    }
+
+    // 4. raise capital
+    fixes.push("<b>Raise " + usd(gap) + " more in liquid capital</b> to reach the starting line, and materially more "
+      + "to reach a deal size worth pursuing. Every additional dollar above the line buys roughly eight dollars of "
+      + "purchase price at a 10% injection.");
+
+    $("fixlist").innerHTML = fixes.map(function(f){ return "<li>" + f + "</li>"; }).join("");
+  }
+
   function render(){
     var i = readInputs(), c = compute(i);
 
@@ -607,16 +714,17 @@ td.neg{color:var(--gap);}
     setEmpty(false);
 
     if(!c.viable){
-      $("reqSDE").textContent = "—";
-      $("dealSize").textContent = "$0";
-      $("maxMult").textContent = "—";
-      $("dealSizeSub").textContent = "No capital available for injection";
-      $("verdict").className = "verdict gap";
-      $("verdict").textContent = "No capacity";
-      $("scale").innerHTML = "";
-      $("gaugeNote").innerHTML = "Search burn and the broken-deal reserve consume the full liquid capital. Nothing remains for an equity injection. Shorten the expected search, reduce the reserve, or raise liquidity before going further.";
-      $("notice").style.display = "none";
+      showShortfall(i, c);
+      return;
     } else {
+      $("short").classList.remove("on");
+      $("headline").style.display = "";
+      $("gauge").classList.remove("off");
+      $("detail").style.display = "";
+      $("assumpBlock").style.display = "";
+      $("printBtn").disabled = false;
+      $("copyBtn").disabled = false;
+      $("verifyLink").classList.remove("disabled");
       $("reqSDE").textContent = usdShort(c.req125);
       $("dealSize").textContent = usdShort(c.projectCost);
       $("maxMult").textContent = mult(c.maxMult125);
