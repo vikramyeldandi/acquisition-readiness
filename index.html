@@ -287,6 +287,10 @@ td.neg{color:var(--gap);}
       <legend>Capital</legend>
       <div class="row"><label for="liquid">Liquid capital<span class="hint">Cash and taxable brokerage. Everything else follows from this.</span></label><input type="number" id="liquid" class="want" placeholder="0" step="10000" min="0"></div>
       <div class="row"><label for="reserve">Broken-deal reserve<span class="hint">Diligence spend on deals that die</span></label><input type="number" id="reserve" value="50000" step="5000"></div>
+      <div class="calcline" id="clAvail">
+        <span class="cl-k">Left for injection<em id="clAvailNote">—</em></span>
+        <span class="cl-v" id="clAvailVal">—</span>
+      </div>
     </fieldset>
 
     <fieldset >
@@ -294,6 +298,10 @@ td.neg{color:var(--gap);}
       <div class="row"><label for="expenses">Monthly household expenses</label><input type="number" id="expenses" value="9000" step="500"></div>
       <div class="row"><label for="otherIncome">Other monthly income<span class="hint">Spouse, consulting, rental</span></label><input type="number" id="otherIncome" value="4000" step="500"></div>
       <div class="row"><label for="months">Expected search (months)</label><input type="number" id="months" value="12" step="1" min="1" max="36"></div>
+      <div class="calcline" id="clBurn">
+        <span class="cl-k">Search runway cost<em id="clBurnNote">—</em></span>
+        <span class="cl-v" id="clBurnVal">—</span>
+      </div>
     </fieldset>
 
     <fieldset >
@@ -703,8 +711,39 @@ td.neg{color:var(--gap);}
     $("fixlist").innerHTML = fixes.map(function(f){ return "<li>" + f + "</li>"; }).join("");
   }
 
+  function renderWorksheetMath(i, c){
+    var net = i.expenses - i.otherIncome;
+    var hasLiquid = !(i.liquidRaw === "" || i.liquid <= 0);
+
+    if(net > 0){
+      $("clBurnVal").textContent = usd(c.burn);
+      $("clBurnNote").textContent = usd(net) + "/mo net \u00D7 " + i.months + " months";
+    } else {
+      $("clBurnVal").textContent = usd(0);
+      $("clBurnNote").textContent = "other income covers expenses";
+    }
+    $("clBurn").className = "calcline";
+
+    if(!hasLiquid){
+      $("clAvailVal").textContent = "\u2014";
+      $("clAvailNote").textContent = "enter liquid capital above";
+      $("clAvail").className = "calcline";
+      return;
+    }
+    var needed = c.burn + i.reserve;
+    $("clAvailVal").textContent = usd(c.available);
+    if(c.available > 0){
+      $("clAvailNote").textContent = usd(i.liquid) + " \u2212 " + usd(c.burn) + " \u2212 " + usd(i.reserve);
+      $("clAvail").className = "calcline good";
+    } else {
+      $("clAvailNote").textContent = usd(needed) + " needed to reach zero";
+      $("clAvail").className = "calcline warn";
+    }
+  }
+
   function render(){
     var i = readInputs(), c = compute(i);
+    renderWorksheetMath(i, c);
 
     $("docTitle").textContent = i.buyerName ? i.buyerName : "Buyer readiness";
     $("metaMarket").textContent = i.buyerMarket ? i.buyerMarket + "  \u00B7  " : "";
