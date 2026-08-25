@@ -126,6 +126,11 @@ fieldset{border:0;padding:0;margin:0 0 28px;}
 .spinwrap .t{font-size:13px;color:var(--ink-2);font-weight:500;}
 
 /* lender cards */
+.lc-key{background:var(--surface-2);border:1px solid var(--rule);border-radius:9px;
+  padding:15px 18px 16px;margin-bottom:16px;}
+.lc-key ul{margin:0;padding-left:18px;display:grid;gap:9px;}
+.lc-key li{font-size:13px;color:var(--ink-2);line-height:1.55;}
+.lc-key b{color:var(--ink);font-weight:600;}
 .lcards{display:flex;flex-direction:column;gap:13px;}
 .lcard{border:1px solid var(--rule-mid);background:var(--surface);border-radius:10px;
   padding:17px 19px 18px;}
@@ -134,10 +139,15 @@ fieldset{border:0;padding:0;margin:0 0 28px;}
 .lc-id{min-width:0;flex:1 1 260px;}
 .lc-name{font-size:16px;font-weight:700;letter-spacing:-.014em;margin:0 0 5px;
   display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
-.badge{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
-  padding:3px 8px;border-radius:20px;white-space:nowrap;}
+.badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;
+  letter-spacing:0;text-transform:none;}
 .badge.plp{background:var(--clear-soft);color:var(--clear);}
 .badge.std{background:var(--caution-soft);color:var(--caution);}
+.lc-why{font-size:12.5px;line-height:1.5;margin:0 0 9px;padding-left:10px;
+  border-left:2px solid var(--rule-mid);}
+.lc-why.plp{border-left-color:var(--clear);color:var(--clear);}
+.lc-why.std{border-left-color:var(--caution);color:var(--caution);}
+.lc-why b{font-weight:600;}
 .lc-contact{font-size:13px;color:var(--ink-2);line-height:1.55;}
 .lc-contact .r2{color:var(--ink-3);font-size:12.5px;}
 .pick{font-size:12.5px;font-weight:600;font-family:var(--ui);border:1px solid var(--rule-mid);
@@ -154,6 +164,7 @@ fieldset{border:0;padding:0;margin:0 0 28px;}
 .st .v{font-family:var(--mono);font-size:15px;font-weight:500;letter-spacing:-.02em;
   display:block;line-height:1.2;}
 .st .n{font-size:11px;color:var(--ink-3);display:block;margin-top:4px;line-height:1.35;}
+.st .n.thin{color:var(--caution);font-weight:600;}
 @media (max-width:900px){.lc-stats{grid-template-columns:repeat(3,1fr);}}
 @media (max-width:560px){.lc-stats{grid-template-columns:repeat(2,1fr);}}
 
@@ -288,6 +299,16 @@ fieldset{border:0;padding:0;margin:0 0 28px;}
 <section class="panel card" id="p3">
   <h2 class="sec">Lender matches</h2>
   <p class="lede" id="p3lede"></p>
+  <div class="lc-key">
+    <p class="eyebrow" style="margin-bottom:9px">How to read these</p>
+    <ul>
+      <li><b>Approves in-house</b> means the SBA has given that bank authority to decide on its own. Their yes is final. <b>Needs SBA sign-off</b> means a second review after the bank approves &mdash; typically two to four more weeks, and a gate that can reopen questions.</li>
+      <li><b>Term sheet</b> is how long until you have written terms in hand. <b>LOI to close</b> is the whole run from signed letter of intent to funding.</li>
+      <li><b>Watch this against your exclusivity window.</b> Most LOIs give 60 to 90 days. A lender whose median close exceeds your window means asking the seller for an extension &mdash; after your diligence money is already spent.</li>
+      <li><b>Closings last year</b> tells you how much to trust the timing. A lender doing three deals a quarter has a thin record; one doing ten a month does this every day.</li>
+    </ul>
+  </div>
+
   <div class="lcards" id="lenderBody"></div>
 
   <div class="notice no-print">
@@ -517,7 +538,11 @@ fieldset{border:0;padding:0;margin:0 0 28px;}
           + '<div class="lc-id">'
             + '<h4 class="lc-name">'+L.n
               + '<span class="badge '+(L.plp?'plp':'std')+'">'
-              + (L.plp?'PLP · delegated authority':'Standard · SBA pre-review')+'</span></h4>'
+              + (L.plp?'Approves in-house':'Needs SBA sign-off')+'</span></h4>'
+            + '<p class="lc-why '+(L.plp?'plp':'std')+'">' + (L.plp
+                ? '<b>No SBA review step.</b> This bank holds delegated authority, so their approval is the approval \u2014 faster, and one less gate that can surprise you late.'
+                : '<b>A second approval gate.</b> This bank must send your file to the SBA after approving it, which adds roughly two to four weeks and can return questions after you thought you were done.')
+              + '</p>'
             + '<div class="lc-contact">'+person+(title?' &middot; '+title:'')
               + '<br><span class="r2">'+L.a+'</span>'
               + '<br><span class="r2">'+L.p+' &middot; '+L.e+'</span></div>'
@@ -534,7 +559,11 @@ fieldset{border:0;padding:0;margin:0 0 28px;}
           + '<div class="st"><span class="k">Term sheet</span><span class="v">'+L.ts+' days</span>'
             + '<span class="n">median, business days</span></div>'
           + '<div class="st"><span class="k">LOI to close</span><span class="v">'+L.cl+' days</span>'
-            + '<span class="n">median of '+L.n+' closings</span></div>'
+            + '<span class="n'+(L.n<25?' thin':'')+'">'
+              + (L.n<25
+                  ? 'only '+L.n+' closings last year \u2014 treat as approximate'
+                  : 'from '+L.n+' closings last year')
+              + '</span></div>'
         + '</div>'
       + '</div>';
     }).join("");
@@ -600,7 +629,9 @@ fieldset{border:0;padding:0;margin:0 0 28px;}
       fees: usd(selected.fees) + " (" + selected.feePct.toFixed(1) + "% of loan)",
       monthly: usd(selected.mo),
       decision: selected.ts + " business days to term sheet \u00B7 " + selected.cl + " days LOI-close (median, n = " + selected.n + ")",
-      authority: selected.plp ? "PLP \u2014 delegated SBA authority" : "Standard \u2014 requires SBA pre-review"
+      authority: selected.plp
+        ? "Approves in-house \u2014 no SBA review step"
+        : "Needs SBA sign-off \u2014 adds 2\u20134 weeks"
     };
     try { sessionStorage.setItem("ar_verified", JSON.stringify(payload)); }
     catch(e){ return false; }
